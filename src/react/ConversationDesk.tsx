@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent, type PointerEventHandler } from "react";
 
 import {
   archivedCards,
@@ -16,7 +16,8 @@ import {
   type ConversationCard,
   type FileNode,
 } from "../core/model.ts";
-import { initialChatPanelPlacement, isDesktopMultiChat } from "../chatDetach.ts";
+import { initialChatPanelPlacement, isDesktopMultiChat, popOutChatWindow } from "../chatDetach.ts";
+import { ChatThreadDemo } from "./ChatThreadDemo.tsx";
 import { type CanvasAction } from "../controller/reduce.ts";
 import { peekLastMessage } from "../core/messagePeek.ts";
 
@@ -376,6 +377,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
               height={Math.min(CHAT_POPUP_HEIGHT, stageSize.height - 24)}
               zIndex={50 + index}
               onClose={() => closeChatPanel(panel.id)}
+              onPopOut={() => closeChatPanel(panel.id)}
               onFocus={() => openChatPanel(panel.id)}
               onDragStart={(event) => {
                 event.currentTarget.setPointerCapture(event.pointerId);
@@ -557,6 +559,7 @@ function ChatPopup({
   height,
   zIndex,
   onClose,
+  onPopOut,
   onFocus,
   onDragStart,
 }: {
@@ -568,9 +571,12 @@ function ChatPopup({
   height: number;
   zIndex: number;
   onClose: () => void;
+  onPopOut: () => void;
   onFocus: () => void;
-  onDragStart: (event: PointerEvent<HTMLElement>) => void;
+  onDragStart: PointerEventHandler<HTMLElement>;
 }) {
+  const [popOutBlocked, setPopOutBlocked] = useState(false);
+
   return (
     <div
       className="chat-popup"
@@ -587,23 +593,40 @@ function ChatPopup({
         <span className={`status-dot status-${card.status}`} title={STATUS_LABEL[card.status]} />
         <strong className="chat-popup-title">{card.title}</strong>
         {simulatedOsWindow ? <span className="chat-popup-standin">Demo panel</span> : null}
-        <button type="button" className="chat-popup-close" onClick={onClose}>
-          Close
-        </button>
+        <div className="chat-popup-actions">
+          <button
+            type="button"
+            className="chat-popup-popout icon-button"
+            aria-label={`Pop out ${card.title} to a browser window`}
+            title="Pop out to browser window"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={() => {
+              const win = popOutChatWindow(card);
+              if (win) {
+                setPopOutBlocked(false);
+                onPopOut();
+                return;
+              }
+              setPopOutBlocked(true);
+            }}
+          >
+            <PopOutIcon />
+          </button>
+          <button type="button" className="chat-popup-close" onClick={onClose}>
+            Close
+          </button>
+        </div>
       </div>
-      <div className="chat-thread-expanded">
-        <p className="bubble user">Can you pick this back up where we left off?</p>
-        <p className="bubble agent">{card.blurb}</p>
-        <p className="bubble user">Yes — keep going on that thread.</p>
-        <p className="bubble agent">
-          Still on it. I will post an update when the next checkpoint lands.
-        </p>
-        <p className="chat-note">
-          {simulatedOsWindow
-            ? "Web demo uses floating panels. A desktop app would open real OS chat windows here."
-            : "Demo transcript — the product loads the full thread here."}
-        </p>
-      </div>
+      <ChatThreadDemo
+        blurb={card.blurb}
+        standinNote={
+          popOutBlocked
+            ? "Pop-up blocked by the browser — allow pop-ups for this site or keep chatting in the panel."
+            : simulatedOsWindow
+              ? "Use Pop out for a real browser window; the shipped desktop app would use OS windows."
+              : "Demo transcript — the product loads the full thread here."
+        }
+      />
     </div>
   );
 }
@@ -625,6 +648,17 @@ function EditIcon() {
       <path
         fill="currentColor"
         d="M11.5 2.5a1.8 1.8 0 0 1 2.5 2.5L6.7 12.3 3 13l.7-3.7L11.5 2.5zM2 14h12v1.5H2V14z"
+      />
+    </svg>
+  );
+}
+
+function PopOutIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M9 2h5v5h-1.5V4.6L7.8 9.3 6.7 8.2 11.4 3.5H9V2zM3 4h4.5V5.5H4.5v6h6V9.5H12v4.5H3V4z"
       />
     </svg>
   );

@@ -44,9 +44,10 @@ export function DemoPage() {
           thread is working, waiting, unread, read, waiting on you, or marked complete. The archive bin
           remembers where a card lived. Drop a file from Explorer and drag its link onto a chat card.
           On desktop, opening previews adds <strong>floating chat panels</strong> on the desk so you can
-          pan the canvas and keep several threads open — the shipped desktop app would use real OS windows
-          instead of this web stand-in. On smaller screens, one panel dims the desk and pauses pan until you
-          close it. Use the edit control beside a title to rename; past titles stay under History. Drag empty canvas to pan; scroll
+          pan the canvas and keep several threads open. Use <strong>Pop out</strong> inside a panel to try the
+          browser window mechanism (allow pop-ups if prompted). On smaller screens, one panel dims the desk and
+          pauses pan until you close it. Use the edit control beside a title to rename; past titles stay under
+          History. Drag empty canvas to pan; scroll
           to zoom.
         </p>
       </header>
