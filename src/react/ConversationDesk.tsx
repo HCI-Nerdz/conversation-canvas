@@ -16,30 +16,26 @@ import {
   type ConversationCard,
   type FileNode,
 } from "../core/model.ts";
+import { initialChatPanelPlacement, isDesktopMultiChat } from "../chatDetach.ts";
 import { type CanvasAction } from "../controller/reduce.ts";
 import { peekLastMessage } from "../core/messagePeek.ts";
+
+interface ChatPanelPlacement {
+  readonly id: string;
+  readonly x: number;
+  readonly y: number;
+}
 
 const DRAG_THRESHOLD_PX = 5;
 
 interface DeskProps {
   model: CanvasModel;
   dispatch: (action: CanvasAction) => void;
-  canvasChatId: string | null;
-  detachedChatIds: ReadonlySet<string>;
-  onOpenChat: (id: string) => void;
-  onCloseCanvasChat: () => void;
   fitRequest?: number;
 }
 
-export function ConversationDesk({
-  model,
-  dispatch,
-  canvasChatId,
-  detachedChatIds,
-  onOpenChat,
-  onCloseCanvasChat,
-  fitRequest = 0,
-}: DeskProps) {
+export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps) {
+  const multiChat = isDesktopMultiChat();
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = useState({ width: 960, height: 640 });
   const dragRef = useRef<{
@@ -52,39 +48,36 @@ export function ConversationDesk({
     moved: boolean;
     openChatOnClick: boolean;
   } | null>(null);
-  const [popupAt, setPopupAt] = useState<{ x: number; y: number } | null>(null);
-  const popupPlacementForRef = useRef<string | null>(null);
+  const [chatPanels, setChatPanels] = useState<ChatPanelPlacement[]>([]);
 
   const view = worldViewport(model.viewport, stageSize.width, stageSize.height, 80);
   const live = activeCards(model);
   const mounted = useMemo(() => cardsInView(live, view), [live, view]);
   const archived = archivedCards(model);
-  const canvasModalOpen = canvasChatId !== null;
-  const openCard = canvasChatId ? live.find((item) => item.id === canvasChatId) : undefined;
+  const canvasModalOpen = !multiChat && chatPanels.length > 0;
+  const openPanelIds = useMemo(() => new Set(chatPanels.map((panel) => panel.id)), [chatPanels]);
 
-  useEffect(() => {
-    if (!canvasChatId) {
-      popupPlacementForRef.current = null;
-      setPopupAt(null);
-      return;
-    }
-    if (popupPlacementForRef.current === canvasChatId) return;
-    popupPlacementForRef.current = canvasChatId;
-    const card = activeCards(model).find((item) => item.id === canvasChatId);
-    if (!card) return;
-    const z = model.viewport.zoom || 1;
-    const pad = 12;
-    const w = Math.min(CHAT_POPUP_WIDTH, stageSize.width - pad * 2);
-    const h = Math.min(CHAT_POPUP_HEIGHT, stageSize.height - pad * 2);
-    let x = model.viewport.x + card.x * z + CARD_WIDTH * z + 16;
-    let y = model.viewport.y + card.y * z;
-    if (x + w > stageSize.width - pad) {
-      x = model.viewport.x + card.x * z - w - 16;
-    }
-    x = Math.max(pad, Math.min(x, stageSize.width - w - pad));
-    y = Math.max(pad, Math.min(y, stageSize.height - h - pad));
-    setPopupAt({ x, y });
-  }, [canvasChatId, stageSize.width, stageSize.height, model]);
+  function openChatPanel(id: string) {
+    dispatch({ type: "focus", id });
+    setChatPanels((current) => {
+      const existing = current.find((panel) => panel.id === id);
+      if (existing) {
+        return [...current.filter((panel) => panel.id !== id), existing];
+      }
+      const card = activeCards(model).find((item) => item.id === id);
+      if (!card) return current;
+      if (!multiChat) {
+        const place = initialChatPanelPlacement(card, model.viewport, stageSize, 0);
+        return [{ id, x: place.x, y: place.y }];
+      }
+      const place = initialChatPanelPlacement(card, model.viewport, stageSize, current.length);
+      return [...current, { id, x: place.x, y: place.y }];
+    });
+  }
+
+  function closeChatPanel(id: string) {
+    setChatPanels((current) => current.filter((panel) => panel.id !== id));
+  }
 
   useEffect(() => {
     if (fitRequest === 0) return;
@@ -148,7 +141,9 @@ export function ConversationDesk({
       const h = Math.min(CHAT_POPUP_HEIGHT, stageSize.height - pad * 2);
       const x = Math.max(pad, Math.min(event.clientX - rect.left - drag.dx, stageSize.width - w - pad));
       const y = Math.max(pad, Math.min(event.clientY - rect.top - drag.dy, stageSize.height - h - pad));
-      setPopupAt({ x, y });
+      setChatPanels((current) =>
+        current.map((panel) => (panel.id === drag.id ? { ...panel, x, y } : panel)),
+      );
     }
   }
 
@@ -169,7 +164,7 @@ export function ConversationDesk({
       return;
     }
     if (drag.kind === "card" && !drag.moved && drag.openChatOnClick) {
-      onOpenChat(drag.id);
+      openChatPanel(drag.id);
     }
   }
 
@@ -332,9 +327,9 @@ export function ConversationDesk({
             <CardView
               key={card.id}
               card={card}
-              chatOpen={detachedChatIds.has(card.id) || canvasChatId === card.id}
+              chatOpen={openPanelIds.has(card.id)}
               historyOpen={model.openTopicsId === card.id}
-              onOpenChat={() => onOpenChat(card.id)}
+              onOpenChat={() => openChatPanel(card.id)}
               onPointerDown={(event, openChatOnClick) => {
                 dispatch({ type: "focus", id: card.id });
                 const root = (event.target as HTMLElement).closest(".card");
@@ -359,28 +354,37 @@ export function ConversationDesk({
             />
           ))}
         </div>
-        {openCard && popupAt ? (
-          <>
-            <button
-              type="button"
-              className="canvas-scrim"
-              aria-label="Close chat and return to canvas"
-              onClick={() => onCloseCanvasChat()}
-            />
+        {canvasModalOpen ? (
+          <button
+            type="button"
+            className="canvas-scrim"
+            aria-label="Close chat and return to canvas"
+            onClick={() => closeChatPanel(chatPanels[chatPanels.length - 1]?.id ?? "")}
+          />
+        ) : null}
+        {chatPanels.map((panel, index) => {
+          const card = live.find((item) => item.id === panel.id);
+          if (!card) return null;
+          return (
             <ChatPopup
-              card={openCard}
-              left={popupAt.x}
-              top={popupAt.y}
+              key={panel.id}
+              card={card}
+              simulatedOsWindow={multiChat}
+              left={panel.x}
+              top={panel.y}
               width={Math.min(CHAT_POPUP_WIDTH, stageSize.width - 24)}
               height={Math.min(CHAT_POPUP_HEIGHT, stageSize.height - 24)}
-              onClose={() => onCloseCanvasChat()}
+              zIndex={50 + index}
+              onClose={() => closeChatPanel(panel.id)}
+              onFocus={() => openChatPanel(panel.id)}
               onDragStart={(event) => {
                 event.currentTarget.setPointerCapture(event.pointerId);
+                const rect = stageRef.current?.getBoundingClientRect();
                 dragRef.current = {
                   kind: "popup",
-                  id: openCard.id,
-                  dx: event.clientX - (stageRef.current?.getBoundingClientRect().left ?? 0) - popupAt.x,
-                  dy: event.clientY - (stageRef.current?.getBoundingClientRect().top ?? 0) - popupAt.y,
+                  id: panel.id,
+                  dx: event.clientX - (rect?.left ?? 0) - panel.x,
+                  dy: event.clientY - (rect?.top ?? 0) - panel.y,
                   startClientX: event.clientX,
                   startClientY: event.clientY,
                   moved: false,
@@ -388,8 +392,8 @@ export function ConversationDesk({
                 };
               }}
             />
-          </>
-        ) : null}
+          );
+        })}
       </div>
       {model.archiveOpen ? (
         <ArchiveBin
@@ -537,33 +541,43 @@ function CardView({
 
 function ChatPopup({
   card,
+  simulatedOsWindow,
   left,
   top,
   width,
   height,
+  zIndex,
   onClose,
+  onFocus,
   onDragStart,
 }: {
   card: ConversationCard;
+  simulatedOsWindow: boolean;
   left: number;
   top: number;
   width: number;
   height: number;
+  zIndex: number;
   onClose: () => void;
+  onFocus: () => void;
   onDragStart: (event: PointerEvent<HTMLElement>) => void;
 }) {
   return (
     <div
       className="chat-popup"
       role="dialog"
-      aria-modal="true"
+      aria-modal={simulatedOsWindow ? "false" : "true"}
       aria-label={`Chat: ${card.title}`}
-      style={{ left, top, width, height }}
-      onPointerDown={(event) => event.stopPropagation()}
+      style={{ left, top, width, height, zIndex }}
+      onPointerDown={(event) => {
+        event.stopPropagation();
+        onFocus();
+      }}
     >
       <div className="chat-popup-chrome" onPointerDown={onDragStart}>
         <span className={`status-dot status-${card.status}`} title={STATUS_LABEL[card.status]} />
         <strong className="chat-popup-title">{card.title}</strong>
+        {simulatedOsWindow ? <span className="chat-popup-standin">Demo panel</span> : null}
         <button type="button" className="chat-popup-close" onClick={onClose}>
           Close
         </button>
@@ -575,7 +589,11 @@ function ChatPopup({
         <p className="bubble agent">
           Still on it. I will post an update when the next checkpoint lands.
         </p>
-        <p className="chat-note">Demo transcript — the product loads the full thread here.</p>
+        <p className="chat-note">
+          {simulatedOsWindow
+            ? "Web demo uses floating panels. A desktop app would open real OS chat windows here."
+            : "Demo transcript — the product loads the full thread here."}
+        </p>
       </div>
     </div>
   );
