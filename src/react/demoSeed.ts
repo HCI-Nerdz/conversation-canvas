@@ -1,4 +1,11 @@
-import { CARD_HEIGHT, CARD_WIDTH, type CanvasModel, type ConversationCard, type InboxStatus } from "../core/model.ts";
+import {
+  CARD_GRID_STEP_X,
+  CARD_GRID_STEP_Y,
+  CARD_HEIGHT,
+  type CanvasModel,
+  type ConversationCard,
+  type InboxStatus,
+} from "../core/model.ts";
 
 const seedTopics = (id: string, titles: string[]): ConversationCard["topics"] =>
   titles.map((title, index) => ({
@@ -129,8 +136,6 @@ export function fillerCards(
   existing: readonly Pick<ConversationCard, "x" | "y">[] = [],
 ): ConversationCard[] {
   const columns = 10;
-  const colWidth = CARD_WIDTH + 12;
-  const rowHeight = CARD_HEIGHT;
   const { originX, originY } = fillerGridOrigin(existing);
   const cycle: InboxStatus[] = ["agentWorking", "read", "needsAttention", "waitingOnCi", "read"];
   return Array.from({ length: count }, (_, index) =>
@@ -139,8 +144,8 @@ export function fillerCards(
       `Thread ${index + 1}`,
       "Shell card only — open it to read the transcript.",
       cycle[index % cycle.length] ?? "read",
-      originX + (index % columns) * colWidth,
-      originY + Math.floor(index / columns) * rowHeight,
+      originX + (index % columns) * CARD_GRID_STEP_X,
+      originY + Math.floor(index / columns) * CARD_GRID_STEP_Y,
     ),
   );
 }

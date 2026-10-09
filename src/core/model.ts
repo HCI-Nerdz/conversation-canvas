@@ -61,7 +61,13 @@ export interface CanvasModel {
 }
 
 export const CARD_WIDTH = 220;
-export const CARD_HEIGHT = 196;
+/** Hit target and culling height (matches shell card chrome in the demo). */
+export const CARD_HEIGHT = 210;
+/** Spacing between card origins on the desk grid. */
+export const CARD_GRID_GAP_X = 16;
+export const CARD_GRID_GAP_Y = 20;
+export const CARD_GRID_STEP_X = CARD_WIDTH + CARD_GRID_GAP_X;
+export const CARD_GRID_STEP_Y = CARD_HEIGHT + CARD_GRID_GAP_Y;
 export const CHAT_POPUP_WIDTH = 520;
 export const CHAT_POPUP_HEIGHT = 560;
 
