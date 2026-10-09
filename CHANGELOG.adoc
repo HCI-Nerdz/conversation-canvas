@@ -3,6 +3,7 @@
 == 2026-10-09 — Conversation canvas desk
 
 * Mock chat composer with scripted thinking indicator and disclaimer in the full chat panel.
+* Lamp colors: green agent working, yellow needs-you, blue unread, grey read/draft, red error, split draft+needs-you; paused (slate) for external waits.
 * Card footer: status lamp to the right of History; signed-off threads show no lamp.
 * Spatial cards with preview, clipped blurb, and six inbox statuses.
 * Archive bin remembers position and offers spatial, grid, and list views.

@@ -9,8 +9,9 @@ import {
   CHAT_POPUP_WIDTH,
   cardsInView,
   fitViewportToCards,
-  STATUS_LABEL,
+  inboxStatusForDisplay,
   showsInboxStatusLight,
+  statusLampTitle,
   worldViewport,
   type ArchiveViewMode,
   type CanvasModel,
@@ -51,6 +52,17 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
     openChatOnClick: boolean;
   } | null>(null);
   const [chatPanels, setChatPanels] = useState<ChatPanelPlacement[]>([]);
+  const [composerDraftByCard, setComposerDraftByCard] = useState<Record<string, boolean>>({});
+
+  function setComposerDraft(cardId: string, hasDraft: boolean) {
+    setComposerDraftByCard((current) => {
+      if (hasDraft) return { ...current, [cardId]: true };
+      if (!(cardId in current)) return current;
+      const next = { ...current };
+      delete next[cardId];
+      return next;
+    });
+  }
 
   const view = worldViewport(model.viewport, stageSize.width, stageSize.height, 80);
   const live = activeCards(model);
@@ -329,6 +341,10 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
             <CardView
               key={card.id}
               card={card}
+              lampStatus={inboxStatusForDisplay(
+                card.status,
+                composerDraftByCard[card.id] ?? false,
+              )}
               chatOpen={openPanelIds.has(card.id)}
               historyOpen={model.openTopicsId === card.id}
               onOpenChat={() => openChatPanel(card.id)}
@@ -372,7 +388,12 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
             <ChatPopup
               key={panel.id}
               card={card}
+              lampStatus={inboxStatusForDisplay(
+                card.status,
+                composerDraftByCard[card.id] ?? false,
+              )}
               simulatedOsWindow={multiChat}
+              onComposerDraftChange={(hasDraft) => setComposerDraft(panel.id, hasDraft)}
               left={panel.x}
               top={panel.y}
               width={Math.min(CHAT_POPUP_WIDTH, stageSize.width - 24)}
@@ -415,6 +436,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
 
 function CardView({
   card,
+  lampStatus,
   chatOpen,
   historyOpen,
   onOpenChat,
@@ -425,6 +447,7 @@ function CardView({
   onSignOff,
 }: {
   card: ConversationCard;
+  lampStatus: ConversationCard["status"];
   chatOpen: boolean;
   historyOpen: boolean;
   onOpenChat: () => void;
@@ -527,12 +550,12 @@ function CardView({
           >
             History
           </button>
-          {showsInboxStatusLight(card.status) ? (
+          {showsInboxStatusLight(lampStatus) ? (
             <button
               type="button"
-              className={`card-status-light status-dot status-${card.status}`}
-              title={`${STATUS_LABEL[card.status]} — click to sign off (demo)`}
-              aria-label={`Status: ${STATUS_LABEL[card.status]}. Sign off after review (demo).`}
+              className={`card-status-light status-dot status-${lampStatus}`}
+              title={`${statusLampTitle(lampStatus)} Click to sign off (demo).`}
+              aria-label={`${statusLampTitle(lampStatus)} Sign off after review (demo).`}
               onClick={(event) => {
                 event.stopPropagation();
                 onSignOff();
@@ -568,6 +591,7 @@ function CardView({
 
 function ChatPopup({
   card,
+  lampStatus,
   simulatedOsWindow,
   left,
   top,
@@ -578,8 +602,10 @@ function ChatPopup({
   onPopOut,
   onFocus,
   onDragStart,
+  onComposerDraftChange,
 }: {
   card: ConversationCard;
+  lampStatus: ConversationCard["status"];
   simulatedOsWindow: boolean;
   left: number;
   top: number;
@@ -590,6 +616,7 @@ function ChatPopup({
   onPopOut: () => void;
   onFocus: () => void;
   onDragStart: PointerEventHandler<HTMLElement>;
+  onComposerDraftChange: (hasDraft: boolean) => void;
 }) {
   const [popOutBlocked, setPopOutBlocked] = useState(false);
 
@@ -608,11 +635,11 @@ function ChatPopup({
       <div className="chat-popup-chrome">
         <div className="chat-popup-drag" onPointerDown={onDragStart}>
           <strong className="chat-popup-title">{card.title}</strong>
-          {showsInboxStatusLight(card.status) ? (
+          {showsInboxStatusLight(lampStatus) ? (
             <span
-              className={`status-dot status-${card.status}`}
-              title={STATUS_LABEL[card.status]}
-              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
+              className={`status-dot status-${lampStatus}`}
+              title={statusLampTitle(lampStatus)}
+              aria-label={statusLampTitle(lampStatus)}
             />
           ) : (
             <span className="visually-hidden">Signed off</span>
@@ -653,6 +680,7 @@ function ChatPopup({
       </div>
       <ChatThreadDemo
         blurb={card.blurb}
+        onComposerDraftChange={onComposerDraftChange}
         standinNote={
           popOutBlocked
             ? "Pop-up blocked by the browser — allow pop-ups for this site or keep chatting in the panel."

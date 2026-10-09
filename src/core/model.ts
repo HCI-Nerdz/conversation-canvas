@@ -1,9 +1,13 @@
+/** Persisted inbox lamp state (composer drafts overlay via `inboxStatusForDisplay`). */
 export type InboxStatus =
-  | "working"
-  | "waiting"
+  | "agentWorking"
+  | "needsUser"
   | "unread"
   | "read"
-  | "needsResponse"
+  | "agentError"
+  | "draft"
+  | "draftNeedsUser"
+  | "paused"
   | "signedOff";
 
 export type ArchiveViewMode = "spatial" | "grid" | "list";
@@ -62,17 +66,46 @@ export const CHAT_POPUP_WIDTH = 520;
 export const CHAT_POPUP_HEIGHT = 560;
 
 export const STATUS_LABEL: Record<InboxStatus, string> = {
-  working: "Working",
-  waiting: "Waiting",
+  agentWorking: "Agent working",
+  needsUser: "Needs your response",
   unread: "Unread",
   read: "Read",
-  needsResponse: "Needs response",
+  agentError: "Stopped on error",
+  draft: "Unsent draft",
+  draftNeedsUser: "Draft reply (needs you)",
+  paused: "Paused",
   signedOff: "Signed off",
+};
+
+const STATUS_HINT: Record<Exclude<InboxStatus, "signedOff">, string> = {
+  agentWorking: "Green — the agent is working on this thread.",
+  needsUser: "Yellow — waiting on your review or reply (e.g. planning mode).",
+  unread: "Blue — new activity you have not opened yet.",
+  read: "Grey — you read it; not signed off.",
+  agentError: "Red — the agent stopped on an error.",
+  draft: "Grey — you have unsent text in the composer.",
+  draftNeedsUser: "Half yellow / half grey — unsent reply while the thread needs you.",
+  paused: "Slate — parked until an external event (not waiting on you).",
 };
 
 /** Inbox threads you reviewed and marked done show no lamp on the card. */
 export function showsInboxStatusLight(status: InboxStatus): boolean {
   return status !== "signedOff";
+}
+
+/** Lamp class + tooltip while the user types in the chat composer (does not persist). */
+export function inboxStatusForDisplay(
+  committed: InboxStatus,
+  composerHasDraft: boolean,
+): InboxStatus {
+  if (!composerHasDraft || committed === "signedOff") return committed;
+  if (committed === "needsUser" || committed === "draftNeedsUser") return "draftNeedsUser";
+  return "draft";
+}
+
+export function statusLampTitle(status: InboxStatus): string {
+  if (status === "signedOff") return "";
+  return `${STATUS_LABEL[status]}. ${STATUS_HINT[status]}`;
 }
 
 export interface WorldRect {

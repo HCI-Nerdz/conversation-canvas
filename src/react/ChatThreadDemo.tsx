@@ -36,9 +36,11 @@ function nextMessageId(prefix: string, counter: number) {
 export function ChatThreadDemo({
   blurb,
   standinNote,
+  onComposerDraftChange,
 }: {
   blurb: string;
   standinNote?: string;
+  onComposerDraftChange?: (hasDraft: boolean) => void;
 }) {
   const instanceId = useId();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -59,6 +61,14 @@ export function ChatThreadDemo({
     if (!node) return;
     node.scrollTop = node.scrollHeight;
   }, [messages, thinking]);
+
+  useEffect(() => {
+    onComposerDraftChange?.(draft.trim().length > 0);
+  }, [draft, onComposerDraftChange]);
+
+  useEffect(() => {
+    return () => onComposerDraftChange?.(false);
+  }, [onComposerDraftChange]);
 
   function stopBubble(event: PointerEvent) {
     event.stopPropagation();

@@ -40,9 +40,10 @@ export function DemoPage() {
         <p className="eyebrow">Demo · Conversation canvas</p>
         <h1>Conversation canvas</h1>
         <p className="lede">
-          Agent chats sit on a desk as picture-and-blurb cards you can move. A status lamp beside{" "}
-          <strong>History</strong> shows working, waiting, unread, read, or needs-response; after you sign
-          off a review the lamp disappears. The archive bin
+          Agent chats sit on a desk as picture-and-blurb cards you can move. The lamp beside{" "}
+          <strong>History</strong> uses green (agent working), yellow (needs you), blue (unread), grey
+          (read or unsent draft), red (error), or a yellow/grey split when you are drafting a reply on a
+          thread that already needs you; sign off and the lamp goes away. The archive bin
           remembers where a card lived. Drop a file from Explorer and drag its link onto a chat card.
           On desktop, opening previews adds <strong>floating chat panels</strong> on the desk so you can
           pan the canvas and keep several threads open. Use <strong>Pop out</strong> inside a panel to try the

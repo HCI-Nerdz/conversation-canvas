@@ -662,11 +662,17 @@ h1 {
   background: currentColor;
 }
 
-.status-dot.status-working { color: #7dd3fc; }
-.status-dot.status-waiting { color: #fbbf24; }
-.status-dot.status-unread { color: #93c5fd; }
+.status-dot.status-agentWorking { color: #4ade80; }
+.status-dot.status-needsUser { color: #facc15; }
+.status-dot.status-unread { color: #60a5fa; }
 .status-dot.status-read { color: #a8a29e; }
-.status-dot.status-needsResponse { color: #c4b5fd; }
+.status-dot.status-agentError { color: #f87171; }
+.status-dot.status-draft { color: #a8a29e; }
+.status-dot.status-paused { color: #64748b; }
+.status-dot.status-draftNeedsUser {
+  color: transparent;
+  background: linear-gradient(90deg, #facc15 50%, #a8a29e 50%);
+}
 
 .file-node {
   width: 148px;

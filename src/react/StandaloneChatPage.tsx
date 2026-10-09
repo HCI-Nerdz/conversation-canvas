@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
 
 import { readChatSnapshot } from "../chatDetach.ts";
-import { showsInboxStatusLight } from "../core/model.ts";
+import { showsInboxStatusLight, statusLampTitle } from "../core/model.ts";
 import { applyDemoTheme, readStoredTheme } from "../theme.ts";
-import { ChatThreadDemo, chatStatusLabel } from "./ChatThreadDemo.tsx";
+import { ChatThreadDemo } from "./ChatThreadDemo.tsx";
 import { demoModel } from "./demoSeed.ts";
 
 export function StandaloneChatPage({ chatId }: { chatId: string }) {
@@ -42,8 +42,8 @@ export function StandaloneChatPage({ chatId }: { chatId: string }) {
         {showsInboxStatusLight(card.status) ? (
           <span
             className={`status-dot status-${card.status}`}
-            title={chatStatusLabel(card.status)}
-            aria-label={`Status: ${chatStatusLabel(card.status)}`}
+            title={statusLampTitle(card.status)}
+            aria-label={statusLampTitle(card.status)}
           />
         ) : (
           <span className="visually-hidden">Signed off</span>
