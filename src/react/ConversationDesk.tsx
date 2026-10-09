@@ -449,14 +449,14 @@ function CardView({
       style={{ left: card.x, top: card.y, zIndex: card.zIndex, width: CARD_WIDTH }}
       onPointerDown={(event) => {
         const target = event.target as HTMLElement;
-        if (target.closest(".card-title-bar")) return;
+        if (target.closest(".title-input")) return;
         const button = target.closest("button");
         if (button && !button.classList.contains("card-preview")) return;
         const openChatOnClick = Boolean(target.closest(".card-preview"));
         onPointerDown(event, openChatOnClick);
       }}
     >
-      <header className="card-title-bar" onPointerDown={(event) => event.stopPropagation()}>
+      <header className="card-title-bar">
         <span
           className={`status-dot status-${card.status}`}
           title={STATUS_LABEL[card.status]}
@@ -480,8 +480,11 @@ function CardView({
           />
         ) : (
           <h2
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => setEditingTitle(true)}
+            title="Double-click to rename"
+            onDoubleClick={(event) => {
+              event.stopPropagation();
+              setEditingTitle(true);
+            }}
           >
             {card.title}
           </h2>

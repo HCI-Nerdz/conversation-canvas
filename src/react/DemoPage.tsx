@@ -46,7 +46,7 @@ export function DemoPage() {
           On desktop, opening previews adds <strong>floating chat panels</strong> on the desk so you can
           pan the canvas and keep several threads open — the shipped desktop app would use real OS windows
           instead of this web stand-in. On smaller screens, one panel dims the desk and pauses pan until you
-          close it. Edit the title inline; past titles stay under History. Drag empty canvas to pan; scroll
+          close it. Double-click a title to rename; past titles stay under History. Drag empty canvas to pan; scroll
           to zoom.
         </p>
       </header>

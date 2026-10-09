@@ -427,14 +427,11 @@ h1 {
   font-size: 1.02rem;
   font-weight: 600;
   line-height: 1.35;
-  cursor: text;
+  cursor: inherit;
   color: var(--text);
   flex: 1;
   min-width: 0;
-}
-
-.card h2:hover {
-  color: var(--link);
+  user-select: none;
 }
 
 .title-input {
@@ -450,6 +447,8 @@ h1 {
   font: inherit;
   font-size: 1.02rem;
   font-weight: 600;
+  cursor: text;
+  user-select: text;
 }
 
 .card p {
