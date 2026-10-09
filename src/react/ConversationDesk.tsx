@@ -486,6 +486,11 @@ function CardView({
         ) : (
           <div className="card-title-row">
             <h2>{card.title}</h2>
+            <span
+              className={`status-dot status-${card.status}`}
+              title={STATUS_LABEL[card.status]}
+              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
+            />
             <button
               type="button"
               className="title-edit icon-button"
@@ -498,11 +503,6 @@ function CardView({
             >
               <EditIcon />
             </button>
-            <span
-              className={`status-dot status-${card.status}`}
-              title={STATUS_LABEL[card.status]}
-              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
-            />
           </div>
         )}
       </header>
@@ -646,7 +646,7 @@ function ChatPopup({
             ? "Pop-up blocked by the browser — allow pop-ups for this site or keep chatting in the panel."
             : simulatedOsWindow
               ? "Use Pop out for a real browser window; the shipped desktop app would use OS windows."
-              : "Demo transcript — the product loads the full thread here."
+              : undefined
         }
       />
     </div>

@@ -2,6 +2,8 @@
 
 == 2026-10-09 — Conversation canvas desk
 
+* Mock chat composer with scripted thinking indicator and disclaimer in the full chat panel.
+* Card title bar: status dot sits between title and rename control.
 * Spatial cards with preview, clipped blurb, and six inbox statuses.
 * Archive bin remembers position and offers spatial, grid, and list views.
 * File drop and a prompt-source link from a file to a chat.
