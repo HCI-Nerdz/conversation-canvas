@@ -24,7 +24,7 @@ export function StandaloneChatPage({ chatId }: { chatId: string }) {
 
   useEffect(() => {
     applyDemoTheme(readStoredTheme());
-    document.title = `${card.title} · Conversation canvas`;
+    document.title = `${card.title} · Agent Chat - canvas`;
   }, [card.title]);
 
   useEffect(() => {

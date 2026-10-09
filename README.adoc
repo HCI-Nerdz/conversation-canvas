@@ -1,7 +1,7 @@
 ifndef::env-github[:icons: font]
 :toc: preamble
 
-= Conversation canvas
+= Agent Chat - canvas
 
 Agent chats as movable picture-and-blurb cards, with inbox statuses, an archive bin, and file-to-chat links.
 
