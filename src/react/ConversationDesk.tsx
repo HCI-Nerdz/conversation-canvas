@@ -380,7 +380,8 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
               onPopOut={() => closeChatPanel(panel.id)}
               onFocus={() => openChatPanel(panel.id)}
               onDragStart={(event) => {
-                event.currentTarget.setPointerCapture(event.pointerId);
+                if (event.button !== 0) return;
+                (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
                 const rect = stageRef.current?.getBoundingClientRect();
                 dragRef.current = {
                   kind: "popup",
@@ -589,10 +590,12 @@ function ChatPopup({
         onFocus();
       }}
     >
-      <div className="chat-popup-chrome" onPointerDown={onDragStart}>
-        <span className={`status-dot status-${card.status}`} title={STATUS_LABEL[card.status]} />
-        <strong className="chat-popup-title">{card.title}</strong>
-        {simulatedOsWindow ? <span className="chat-popup-standin">Demo panel</span> : null}
+      <div className="chat-popup-chrome">
+        <div className="chat-popup-drag" onPointerDown={onDragStart}>
+          <span className={`status-dot status-${card.status}`} title={STATUS_LABEL[card.status]} />
+          <strong className="chat-popup-title">{card.title}</strong>
+          {simulatedOsWindow ? <span className="chat-popup-standin">Demo panel</span> : null}
+        </div>
         <div className="chat-popup-actions">
           <button
             type="button"
@@ -600,7 +603,8 @@ function ChatPopup({
             aria-label={`Pop out ${card.title} to a browser window`}
             title="Pop out to browser window"
             onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               const win = popOutChatWindow(card);
               if (win) {
                 setPopOutBlocked(false);
@@ -612,7 +616,15 @@ function ChatPopup({
           >
             <PopOutIcon />
           </button>
-          <button type="button" className="chat-popup-close" onClick={onClose}>
+          <button
+            type="button"
+            className="chat-popup-close"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClose();
+            }}
+          >
             Close
           </button>
         </div>
