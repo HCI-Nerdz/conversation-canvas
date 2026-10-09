@@ -663,13 +663,34 @@ h1 {
 }
 
 .status-dot.status-agentWorking { color: #4ade80; }
-.status-dot.status-needsUser { color: #facc15; }
-.status-dot.status-unread { color: #60a5fa; }
-.status-dot.status-read { color: #a8a29e; }
+
+.status-dot.status-waitingOnCi {
+  color: #4ade80;
+  animation: status-ci-pulse 1.35s ease-in-out infinite;
+}
+
+@keyframes status-ci-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+
+.status-dot.status-needsAttention { color: #facc15; }
+
+.status-dot.status-read {
+  color: transparent;
+  box-shadow: inset 0 0 0 2px #9ca3af;
+}
+
 .status-dot.status-agentError { color: #f87171; }
-.status-dot.status-draft { color: #a8a29e; }
-.status-dot.status-paused { color: #64748b; }
-.status-dot.status-draftNeedsUser {
+
+.status-dot.status-dirty { color: #a8a29e; }
+
+.status-dot.status-needsAttentionDirty {
   color: transparent;
   background: linear-gradient(90deg, #facc15 50%, #a8a29e 50%);
 }

@@ -12,6 +12,7 @@ import {
   inboxStatusForDisplay,
   showsInboxStatusLight,
   statusLampTitle,
+  type LampDisplayStatus,
   worldViewport,
   type ArchiveViewMode,
   type CanvasModel,
@@ -447,7 +448,7 @@ function CardView({
   onSignOff,
 }: {
   card: ConversationCard;
-  lampStatus: ConversationCard["status"];
+  lampStatus: LampDisplayStatus;
   chatOpen: boolean;
   historyOpen: boolean;
   onOpenChat: () => void;
@@ -605,7 +606,7 @@ function ChatPopup({
   onComposerDraftChange,
 }: {
   card: ConversationCard;
-  lampStatus: ConversationCard["status"];
+  lampStatus: LampDisplayStatus;
   simulatedOsWindow: boolean;
   left: number;
   top: number;

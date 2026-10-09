@@ -1,14 +1,14 @@
-/** Persisted inbox lamp state (composer drafts overlay via `inboxStatusForDisplay`). */
+/** Persisted inbox lamp state (composer “dirty” overlays via `inboxStatusForDisplay`). */
 export type InboxStatus =
   | "agentWorking"
-  | "needsUser"
-  | "unread"
+  | "waitingOnCi"
+  | "needsAttention"
   | "read"
   | "agentError"
-  | "draft"
-  | "draftNeedsUser"
-  | "paused"
   | "signedOff";
+
+/** Lamp rendering includes ephemeral dirty overlays (never stored on the card). */
+export type LampDisplayStatus = InboxStatus | "dirty" | "needsAttentionDirty";
 
 export type ArchiveViewMode = "spatial" | "grid" | "list";
 
@@ -67,45 +67,52 @@ export const CHAT_POPUP_HEIGHT = 560;
 
 export const STATUS_LABEL: Record<InboxStatus, string> = {
   agentWorking: "Agent working",
-  needsUser: "Needs your response",
-  unread: "Unread",
+  waitingOnCi: "Waiting on CI",
+  needsAttention: "Needs attention",
   read: "Read",
   agentError: "Stopped on error",
-  draft: "Unsent draft",
-  draftNeedsUser: "Draft reply (needs you)",
-  paused: "Paused",
   signedOff: "Signed off",
 };
 
-const STATUS_HINT: Record<Exclude<InboxStatus, "signedOff">, string> = {
-  agentWorking: "Green — the agent is working on this thread.",
-  needsUser: "Yellow — waiting on your review or reply (e.g. planning mode).",
-  unread: "Blue — new activity you have not opened yet.",
-  read: "Grey — you read it; not signed off.",
+const LAMP_LABEL: Record<Exclude<LampDisplayStatus, "signedOff">, string> = {
+  agentWorking: "Agent working",
+  waitingOnCi: "Waiting on CI",
+  needsAttention: "Needs attention",
+  read: "Read",
+  agentError: "Stopped on error",
+  dirty: "Dirty composer",
+  needsAttentionDirty: "Needs attention + dirty composer",
+};
+
+const LAMP_HINT: Record<Exclude<LampDisplayStatus, "signedOff">, string> = {
+  agentWorking: "Green solid — the agent is working on this thread.",
+  waitingOnCi: "Green flashing — waiting on CI or another external pipeline step.",
+  needsAttention: "Yellow — needs your attention (feedback, planning, first prompt, unread, etc.).",
+  read: "Grey ring — you read it; composer clean; not signed off.",
   agentError: "Red — the agent stopped on an error.",
-  draft: "Grey — you have unsent text in the composer.",
-  draftNeedsUser: "Half yellow / half grey — unsent reply while the thread needs you.",
-  paused: "Slate — parked until an external event (not waiting on you).",
+  dirty: "Grey fill — unsent text in the composer.",
+  needsAttentionDirty: "Half yellow / half grey — needs attention and a dirty composer.",
 };
 
 /** Inbox threads you reviewed and marked done show no lamp on the card. */
-export function showsInboxStatusLight(status: InboxStatus): boolean {
+export function showsInboxStatusLight(status: LampDisplayStatus): boolean {
   return status !== "signedOff";
 }
 
-/** Lamp class + tooltip while the user types in the chat composer (does not persist). */
+/** Lamp while the user types in the chat composer (does not persist). */
 export function inboxStatusForDisplay(
   committed: InboxStatus,
   composerHasDraft: boolean,
-): InboxStatus {
-  if (!composerHasDraft || committed === "signedOff") return committed;
-  if (committed === "needsUser" || committed === "draftNeedsUser") return "draftNeedsUser";
-  return "draft";
+): LampDisplayStatus {
+  if (committed === "signedOff") return "signedOff";
+  if (!composerHasDraft) return committed;
+  if (committed === "needsAttention") return "needsAttentionDirty";
+  return "dirty";
 }
 
-export function statusLampTitle(status: InboxStatus): string {
+export function statusLampTitle(status: LampDisplayStatus): string {
   if (status === "signedOff") return "";
-  return `${STATUS_LABEL[status]}. ${STATUS_HINT[status]}`;
+  return `${LAMP_LABEL[status]}. ${LAMP_HINT[status]}`;
 }
 
 export interface WorldRect {

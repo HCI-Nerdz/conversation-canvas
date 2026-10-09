@@ -50,7 +50,7 @@ export const demoModel: CanvasModel = {
       "copy",
       "Changelog voice",
       "Draft is ready. You read it. It still needs a yes before the notes go out.",
-      "needsUser",
+      "needsAttention",
       300,
       48,
       ["Release notes"],
@@ -59,7 +59,7 @@ export const demoModel: CanvasModel = {
       "inbox",
       "Unread design review",
       "A new pass landed while you were in another thread.",
-      "unread",
+      "needsAttention",
       560,
       36,
     ),
@@ -74,23 +74,23 @@ export const demoModel: CanvasModel = {
     card(
       "sketch",
       "New API sketch",
-      "You opened the thread and typed a first prompt but have not sent it yet.",
-      "draft",
+      "You opened the thread to write a first prompt — needs attention even before you send.",
+      "needsAttention",
       80,
       280,
     ),
     card(
       "snooze",
       "Hold until CI",
-      "Parked on purpose. Waiting on the pipeline — not on you to reply.",
-      "paused",
+      "Pipeline running. Green flash means waiting on CI, not on you to reply.",
+      "waitingOnCi",
       340,
       270,
     ),
     card(
       "read",
       "Font subset check",
-      "You opened this after it finished. Read, not signed off.",
+      "You opened this after it finished. Read, clean composer, not signed off.",
       "read",
       600,
       270,
@@ -111,7 +111,7 @@ export function fillerCards(count: number): ConversationCard[] {
   const columns = 10;
   const colWidth = 232;
   const rowHeight = 196;
-  const cycle: InboxStatus[] = ["agentWorking", "read", "unread", "needsUser", "read"];
+  const cycle: InboxStatus[] = ["agentWorking", "read", "needsAttention", "waitingOnCi", "read"];
   return Array.from({ length: count }, (_, index) =>
     card(
       `fill-${index}`,

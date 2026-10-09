@@ -3,14 +3,14 @@ import test from "node:test";
 
 import { inboxStatusForDisplay } from "./model.ts";
 
-test("composer draft overlays needs-user as split lamp", () => {
-  assert.equal(inboxStatusForDisplay("needsUser", true), "draftNeedsUser");
-  assert.equal(inboxStatusForDisplay("needsUser", false), "needsUser");
+test("dirty composer on needs-attention shows split lamp", () => {
+  assert.equal(inboxStatusForDisplay("needsAttention", true), "needsAttentionDirty");
+  assert.equal(inboxStatusForDisplay("needsAttention", false), "needsAttention");
 });
 
-test("composer draft on read shows draft grey", () => {
-  assert.equal(inboxStatusForDisplay("read", true), "draft");
-  assert.equal(inboxStatusForDisplay("agentWorking", true), "draft");
+test("dirty composer elsewhere shows grey dirty", () => {
+  assert.equal(inboxStatusForDisplay("read", true), "dirty");
+  assert.equal(inboxStatusForDisplay("agentWorking", true), "dirty");
 });
 
 test("signed off ignores composer draft", () => {
