@@ -670,11 +670,13 @@ h1 {
   background: currentColor;
 }
 
-.status-dot.status-agentWorking { color: #4ade80; }
+.status-dot.status-agentWorking {
+  color: #4ade80;
+  animation: status-ci-pulse 1.35s ease-in-out infinite;
+}
 
 .status-dot.status-waitingOnCi {
   color: #4ade80;
-  animation: status-ci-pulse 1.35s ease-in-out infinite;
 }
 
 @keyframes status-ci-pulse {

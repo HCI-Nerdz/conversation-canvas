@@ -5,7 +5,7 @@
 * Mock chat composer with scripted thinking indicator and disclaimer in the full chat panel.
 * Shell-card stress grid uses proper row/column stride so fillers do not overlap each other.
 * Fix zoom and pan after “Add 120 shell cards” (fit no longer re-runs on every viewport change); add 100% zoom control.
-* Lamp colors: solid green working, flashing green CI wait, yellow needs-attention, grey ring read, grey fill dirty, split yellow/grey, red error.
+* Lamp colors: flashing green working, solid green CI hold, yellow needs-attention, grey ring read, grey fill dirty, split yellow/grey, red error.
 * Card footer: status lamp to the right of History; signed-off threads show no lamp.
 * Spatial cards with preview, clipped blurb, and six inbox statuses.
 * Archive bin remembers position and offers spatial, grid, and list views.

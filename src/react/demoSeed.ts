@@ -89,7 +89,7 @@ export const demoModel: CanvasModel = {
     card(
       "snooze",
       "Hold until CI",
-      "Pipeline running. Green flash means waiting on CI, not on you to reply.",
+      "Pipeline running. Solid green means hold until CI — not waiting on you to reply.",
       "waitingOnCi",
       340,
       270,

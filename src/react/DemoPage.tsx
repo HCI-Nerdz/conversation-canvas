@@ -41,10 +41,10 @@ export function DemoPage() {
         <h1>Agent Canvas</h1>
         <p className="lede">
           Agent chats sit on a desk as picture-and-blurb cards you can move. The lamp beside{" "}
-          <strong>History</strong> uses solid green (agent working), flashing green (waiting on CI),
-          yellow (needs attention — feedback, planning, first prompt, unread), a grey ring (read, clean
-          composer), grey fill (dirty composer), yellow/grey split (needs attention + dirty), or red
-          (error); sign off and the lamp goes away. The archive bin
+          <strong>History</strong> uses flashing green (agent working), solid green (hold until CI), yellow
+          (needs attention), a grey
+          ring (read, clean composer), grey fill (dirty composer), yellow/grey split (needs attention +
+          dirty), or red (error); sign off and the lamp goes away. The archive bin
           remembers where a card lived. Drop a file from Explorer and drag its link onto a chat card.
           On desktop, opening previews adds <strong>floating chat panels</strong> on the desk so you can
           pan the canvas and keep several threads open. Use <strong>Pop out</strong> inside a panel to try the

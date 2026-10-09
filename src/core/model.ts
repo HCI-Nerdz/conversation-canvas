@@ -91,8 +91,8 @@ const LAMP_LABEL: Record<Exclude<LampDisplayStatus, "signedOff">, string> = {
 };
 
 const LAMP_HINT: Record<Exclude<LampDisplayStatus, "signedOff">, string> = {
-  agentWorking: "Green solid — the agent is working on this thread.",
-  waitingOnCi: "Green flashing — waiting on CI or another external pipeline step.",
+  agentWorking: "Green flashing — the agent is working (activity in progress).",
+  waitingOnCi: "Green solid — on hold until CI or another external step finishes.",
   needsAttention: "Yellow — needs your attention (feedback, planning, first prompt, unread, etc.).",
   read: "Grey ring — you read it; composer clean; not signed off.",
   agentError: "Red — the agent stopped on an error.",
