@@ -143,6 +143,24 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
   }, [dispatch]);
 
   useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const width = Math.round(entry.contentRect.width);
+      const height = Math.round(entry.contentRect.height);
+      if (width < 8 || height < 8) return;
+      setStageSize((current) =>
+        current.width === width && current.height === height ? current : { width, height },
+      );
+    });
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (fitRequest === 0) return;
     const next = fitViewportToCards(
       activeCards(modelRef.current),
@@ -297,12 +315,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
         </button>
       </div>
       <div
-        ref={(node) => {
-          stageRef.current = node;
-          if (node && (node.clientWidth !== stageSize.width || node.clientHeight !== stageSize.height)) {
-            setStageSize({ width: node.clientWidth, height: node.clientHeight });
-          }
-        }}
+        ref={stageRef}
         className={canvasModalOpen ? "stage stage-modal-open" : "stage"}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

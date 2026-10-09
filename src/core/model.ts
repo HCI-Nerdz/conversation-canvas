@@ -175,6 +175,7 @@ export function fitViewportToCards(
   padding = 48,
 ): CanvasViewport {
   if (cards.length === 0) return { x: 24, y: 24, zoom: 1 };
+  if (stageWidth < 8 || stageHeight < 8) return { x: 24, y: 24, zoom: 1 };
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
