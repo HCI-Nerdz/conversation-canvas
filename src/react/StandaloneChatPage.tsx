@@ -37,8 +37,12 @@ export function StandaloneChatPage({ chatId }: { chatId: string }) {
   return (
     <main className="standalone-chat">
       <header className="standalone-chat-chrome">
-        <span className={`status-dot status-${card.status}`} title={chatStatusLabel(card.status)} />
         <h1>{card.title}</h1>
+        <span
+          className={`status-dot status-${card.status}`}
+          title={chatStatusLabel(card.status)}
+          aria-label={`Status: ${chatStatusLabel(card.status)}`}
+        />
       </header>
       <ChatThreadDemo
         blurb={card.blurb}

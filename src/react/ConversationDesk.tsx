@@ -460,27 +460,29 @@ function CardView({
       }}
     >
       <header className="card-title-bar">
-        <span
-          className={`status-dot status-${card.status}`}
-          title={STATUS_LABEL[card.status]}
-          aria-label={`Status: ${STATUS_LABEL[card.status]}`}
-        />
         {editingTitle ? (
-          <input
-            className="title-input"
-            value={draftTitle}
-            autoFocus
-            onChange={(event) => setDraftTitle(event.target.value)}
-            onBlur={commitTitle}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") commitTitle();
-              if (event.key === "Escape") {
-                setDraftTitle(card.title);
-                setEditingTitle(false);
-              }
-            }}
-            onPointerDown={(event) => event.stopPropagation()}
-          />
+          <>
+            <input
+              className="title-input"
+              value={draftTitle}
+              autoFocus
+              onChange={(event) => setDraftTitle(event.target.value)}
+              onBlur={commitTitle}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") commitTitle();
+                if (event.key === "Escape") {
+                  setDraftTitle(card.title);
+                  setEditingTitle(false);
+                }
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+            />
+            <span
+              className={`status-dot status-${card.status}`}
+              title={STATUS_LABEL[card.status]}
+              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
+            />
+          </>
         ) : (
           <div className="card-title-row">
             <h2>{card.title}</h2>
@@ -496,6 +498,11 @@ function CardView({
             >
               <EditIcon />
             </button>
+            <span
+              className={`status-dot status-${card.status}`}
+              title={STATUS_LABEL[card.status]}
+              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
+            />
           </div>
         )}
       </header>
@@ -592,9 +599,12 @@ function ChatPopup({
     >
       <div className="chat-popup-chrome">
         <div className="chat-popup-drag" onPointerDown={onDragStart}>
-          <span className={`status-dot status-${card.status}`} title={STATUS_LABEL[card.status]} />
           <strong className="chat-popup-title">{card.title}</strong>
-          {simulatedOsWindow ? <span className="chat-popup-standin">Demo panel</span> : null}
+          <span
+            className={`status-dot status-${card.status}`}
+            title={STATUS_LABEL[card.status]}
+            aria-label={`Status: ${STATUS_LABEL[card.status]}`}
+          />
         </div>
         <div className="chat-popup-actions">
           <button

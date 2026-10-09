@@ -323,12 +323,8 @@ h1 {
   text-overflow: ellipsis;
 }
 
-.chat-popup-standin {
+.chat-popup-drag .status-dot {
   flex-shrink: 0;
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-subtle);
 }
 
 .chat-popup-actions {
@@ -456,15 +452,14 @@ h1 {
   display: flex;
   flex: 1;
   min-width: 0;
-  gap: 0.2rem;
-  align-items: flex-start;
+  gap: 0.35rem;
+  align-items: center;
 }
 
 .card-title-bar .status-dot {
   flex-shrink: 0;
   width: 0.65rem;
   height: 0.65rem;
-  margin-top: 0.35rem;
   cursor: help;
 }
 
