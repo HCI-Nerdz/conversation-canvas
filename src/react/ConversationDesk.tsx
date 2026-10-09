@@ -15,6 +15,7 @@ import {
   type FileNode,
 } from "../core/model.ts";
 import { type CanvasAction } from "../controller/reduce.ts";
+import { peekLastMessage } from "../core/messagePeek.ts";
 
 const DRAG_THRESHOLD_PX = 5;
 
@@ -37,6 +38,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
     startClientX: number;
     startClientY: number;
     moved: boolean;
+    openChatOnClick: boolean;
   } | null>(null);
 
   const view = worldViewport(model.viewport, stageSize.width, stageSize.height, 80);
@@ -116,7 +118,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
       if (hit) dispatch({ type: "link", fileId: drag.id, cardId: hit.id });
       return;
     }
-    if (drag.kind === "card" && !drag.moved) {
+    if (drag.kind === "card" && !drag.moved && drag.openChatOnClick) {
       onOpenChat(drag.id);
     }
   }
@@ -205,6 +207,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
               startClientX: event.clientX,
               startClientY: event.clientY,
               moved: false,
+              openChatOnClick: false,
             };
           }}
         />
@@ -242,6 +245,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
                   startClientX: event.clientX,
                   startClientY: event.clientY,
                   moved: false,
+                  openChatOnClick: false,
                 };
               }}
             >
@@ -261,6 +265,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
                     startClientX: event.clientX,
                     startClientY: event.clientY,
                     moved: false,
+                    openChatOnClick: false,
                   };
                 }}
               >
@@ -273,7 +278,8 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
               key={card.id}
               card={card}
               historyOpen={model.openTopicsId === card.id}
-              onPointerDown={(event) => {
+              onOpenChat={() => onOpenChat(card.id)}
+              onPointerDown={(event, openChatOnClick) => {
                 dispatch({ type: "focus", id: card.id });
                 event.currentTarget.setPointerCapture(event.pointerId);
                 const point = worldPoint(event);
@@ -285,6 +291,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
                   startClientX: event.clientX,
                   startClientY: event.clientY,
                   moved: false,
+                  openChatOnClick,
                 };
               }}
               onArchive={() => dispatch({ type: "archive", id: card.id, at: new Date().toISOString() })}
@@ -315,6 +322,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
 function CardView({
   card,
   historyOpen,
+  onOpenChat,
   onPointerDown,
   onArchive,
   onToggleHistory,
@@ -322,7 +330,8 @@ function CardView({
 }: {
   card: ConversationCard;
   historyOpen: boolean;
-  onPointerDown: (event: PointerEvent) => void;
+  onOpenChat: () => void;
+  onPointerDown: (event: PointerEvent, openChatOnClick: boolean) => void;
   onArchive: () => void;
   onToggleHistory: () => void;
   onRetitle: (title: string) => void;
@@ -341,13 +350,25 @@ function CardView({
     else setDraftTitle(card.title);
   }
 
+  const lastMessage = peekLastMessage(card.blurb);
+
   return (
     <article
       className="card"
       style={{ left: card.x, top: card.y, zIndex: card.zIndex, width: CARD_WIDTH }}
-      onPointerDown={onPointerDown}
+      onPointerDown={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest(".card-title-bar")) return;
+        const button = target.closest("button");
+        if (button && !button.classList.contains("card-preview")) return;
+        const openChatOnClick = Boolean(target.closest(".card-preview"));
+        onPointerDown(event, openChatOnClick);
+      }}
     >
-      <header className="card-title-bar">
+      <header
+        className="card-title-bar"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
         <span
           className={`status-dot status-${card.status}`}
           title={STATUS_LABEL[card.status]}
@@ -371,20 +392,32 @@ function CardView({
           />
         ) : (
           <h2
-            onClick={(event) => {
-              event.stopPropagation();
-              setEditingTitle(true);
-            }}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={() => setEditingTitle(true)}
           >
             {card.title}
           </h2>
         )}
       </header>
-      <div className="preview preview-snapshot" aria-hidden="true">
-        <p className="bubble user">…</p>
-        <p className="bubble agent">{card.blurb}</p>
-      </div>
-      <footer>
+      <button
+        type="button"
+        className="card-preview preview-snapshot"
+        aria-label={`Open chat. Last message: ${lastMessage.text}${lastMessage.truncated ? "…" : ""}`}
+        onClick={(event) => {
+          event.stopPropagation();
+          onOpenChat();
+        }}
+      >
+        <span className="preview-text">
+          {lastMessage.text}
+          {lastMessage.truncated ? (
+            <span className="preview-ellipsis" aria-hidden="true">
+              …
+            </span>
+          ) : null}
+        </span>
+      </button>
+      <footer onPointerDown={(event) => event.stopPropagation()}>
         <button
           type="button"
           onClick={(event) => {

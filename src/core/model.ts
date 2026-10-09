@@ -57,7 +57,7 @@ export interface CanvasModel {
 }
 
 export const CARD_WIDTH = 220;
-export const CARD_HEIGHT = 184;
+export const CARD_HEIGHT = 196;
 
 export const STATUS_LABEL: Record<InboxStatus, string> = {
   working: "Working",

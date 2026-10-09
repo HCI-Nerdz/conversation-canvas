@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "check": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test src/core/model.test.ts"
+    "test": "node --experimental-strip-types --test src/core/*.test.ts"
   },
   "dependencies": {
     "react": "^19.1.0",

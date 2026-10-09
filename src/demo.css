@@ -296,7 +296,10 @@ h1 {
 }
 
 .card {
-  padding: 0.45rem 0.55rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.45rem 0.55rem 0.55rem;
 }
 
 .card-title-bar {
@@ -304,7 +307,7 @@ h1 {
   gap: 0.45rem;
   align-items: flex-start;
   padding: 0.15rem 0 0.4rem;
-  margin: 0 0 0.15rem;
+  margin: 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -320,6 +323,9 @@ h1 {
   display: flex;
   gap: 0.35rem;
   align-items: center;
+  margin-top: 0.15rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border);
   font-size: 0.72rem;
   color: var(--text-muted);
 }
@@ -370,18 +376,48 @@ h1 {
   font-size: 0.78rem;
 }
 
-.preview {
-  margin-top: 0;
-  padding: 0.45rem;
-  border-radius: 6px;
+.card-preview {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bubble-agent-bg);
+  color: var(--bubble-agent-text);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+
+.card-preview:hover {
+  border-color: var(--link);
   background: var(--surface);
 }
 
+.preview-text {
+  display: inline;
+}
+
+.preview-ellipsis {
+  display: inline-block;
+  margin-left: 0.05em;
+  animation: preview-ellipsis 1.2s ease-in-out infinite;
+}
+
+@keyframes preview-ellipsis {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .preview-snapshot {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-height: 64px;
+  min-height: 2.75rem;
 }
 
 .bubble {
