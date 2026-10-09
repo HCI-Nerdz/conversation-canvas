@@ -1,4 +1,4 @@
-import type { CanvasModel, ConversationCard, InboxStatus } from "../core/model.ts";
+import { CARD_HEIGHT, CARD_WIDTH, type CanvasModel, type ConversationCard, type InboxStatus } from "../core/model.ts";
 
 const seedTopics = (id: string, titles: string[]): ConversationCard["topics"] =>
   titles.map((title, index) => ({
@@ -107,10 +107,31 @@ export const demoModel: CanvasModel = {
   ],
 };
 
-export function fillerCards(count: number): ConversationCard[] {
+const FILLER_GRID_GAP = 48;
+
+/** Place stress-test cards below (or beside) existing desk cards without overlap. */
+export function fillerGridOrigin(
+  existing: readonly Pick<ConversationCard, "x" | "y">[],
+  gap = FILLER_GRID_GAP,
+): { originX: number; originY: number } {
+  if (existing.length === 0) return { originX: 32, originY: 32 };
+  let maxBottom = -Infinity;
+  let minX = Infinity;
+  for (const item of existing) {
+    maxBottom = Math.max(maxBottom, item.y + CARD_HEIGHT);
+    minX = Math.min(minX, item.x);
+  }
+  return { originX: minX, originY: maxBottom + gap };
+}
+
+export function fillerCards(
+  count: number,
+  existing: readonly Pick<ConversationCard, "x" | "y">[] = [],
+): ConversationCard[] {
   const columns = 10;
-  const colWidth = 232;
-  const rowHeight = 196;
+  const colWidth = CARD_WIDTH + 12;
+  const rowHeight = CARD_HEIGHT;
+  const { originX, originY } = fillerGridOrigin(existing);
   const cycle: InboxStatus[] = ["agentWorking", "read", "needsAttention", "waitingOnCi", "read"];
   return Array.from({ length: count }, (_, index) =>
     card(
@@ -118,8 +139,8 @@ export function fillerCards(count: number): ConversationCard[] {
       `Thread ${index + 1}`,
       "Shell card only — open it to read the transcript.",
       cycle[index % cycle.length] ?? "read",
-      32 + (index % columns) * colWidth,
-      32 + Math.floor(index / columns) * rowHeight,
+      originX + (index % columns) * colWidth,
+      originY + Math.floor(index / columns) * rowHeight,
     ),
   );
 }

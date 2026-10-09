@@ -58,7 +58,7 @@ export function DemoPage() {
         <button
           type="button"
           onClick={() => {
-            dispatch({ type: "add-cards", cards: fillerCards(120) });
+            dispatch({ type: "add-cards", cards: fillerCards(120, model.cards) });
             setFitRequest((n) => n + 1);
           }}
         >
