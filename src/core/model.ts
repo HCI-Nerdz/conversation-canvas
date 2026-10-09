@@ -58,8 +58,8 @@ export interface CanvasModel {
 
 export const CARD_WIDTH = 220;
 export const CARD_HEIGHT = 196;
-export const EXPANDED_CARD_WIDTH = 520;
-export const EXPANDED_CARD_HEIGHT = 560;
+export const CHAT_POPUP_WIDTH = 520;
+export const CHAT_POPUP_HEIGHT = 560;
 
 export const STATUS_LABEL: Record<InboxStatus, string> = {
   working: "Working",

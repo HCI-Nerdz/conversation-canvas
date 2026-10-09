@@ -5,8 +5,8 @@ import {
   activeCards,
   CARD_HEIGHT,
   CARD_WIDTH,
-  EXPANDED_CARD_HEIGHT,
-  EXPANDED_CARD_WIDTH,
+  CHAT_POPUP_HEIGHT,
+  CHAT_POPUP_WIDTH,
   cardsInView,
   fitViewportToCards,
   STATUS_LABEL,
@@ -33,7 +33,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = useState({ width: 960, height: 640 });
   const dragRef = useRef<{
-    kind: "card" | "file" | "pan" | "link";
+    kind: "card" | "file" | "pan" | "link" | "popup";
     id: string;
     dx: number;
     dy: number;
@@ -42,17 +42,38 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
     moved: boolean;
     openChatOnClick: boolean;
   } | null>(null);
+  const [popupAt, setPopupAt] = useState<{ x: number; y: number } | null>(null);
+  const popupPlacementForRef = useRef<string | null>(null);
 
   const view = worldViewport(model.viewport, stageSize.width, stageSize.height, 80);
   const live = activeCards(model);
-  const mounted = useMemo(() => {
-    const inView = cardsInView(live, view);
-    if (!openChatId) return inView;
-    const open = live.find((item) => item.id === openChatId);
-    if (!open || inView.some((item) => item.id === openChatId)) return inView;
-    return [...inView, open];
-  }, [live, view, openChatId]);
+  const mounted = useMemo(() => cardsInView(live, view), [live, view]);
   const archived = archivedCards(model);
+  const openCard = openChatId ? live.find((item) => item.id === openChatId) : undefined;
+
+  useEffect(() => {
+    if (!openChatId) {
+      popupPlacementForRef.current = null;
+      setPopupAt(null);
+      return;
+    }
+    if (popupPlacementForRef.current === openChatId) return;
+    popupPlacementForRef.current = openChatId;
+    const card = activeCards(model).find((item) => item.id === openChatId);
+    if (!card) return;
+    const z = model.viewport.zoom || 1;
+    const pad = 12;
+    const w = Math.min(CHAT_POPUP_WIDTH, stageSize.width - pad * 2);
+    const h = Math.min(CHAT_POPUP_HEIGHT, stageSize.height - pad * 2);
+    let x = model.viewport.x + card.x * z + CARD_WIDTH * z + 16;
+    let y = model.viewport.y + card.y * z;
+    if (x + w > stageSize.width - pad) {
+      x = model.viewport.x + card.x * z - w - 16;
+    }
+    x = Math.max(pad, Math.min(x, stageSize.width - w - pad));
+    y = Math.max(pad, Math.min(y, stageSize.height - h - pad));
+    setPopupAt({ x, y });
+  }, [openChatId, stageSize.width, stageSize.height, model]);
 
   useEffect(() => {
     if (fitRequest === 0) return;
@@ -71,6 +92,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
   }
 
   function zoomAt(clientX: number, clientY: number, nextZoom: number) {
+    if (openChatId) return;
     const rect = stageRef.current?.getBoundingClientRect();
     if (!rect) return;
     const zoom = model.viewport.zoom || 1;
@@ -106,6 +128,16 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
     }
     if (drag.kind === "file") {
       dispatch({ type: "move-file", id: drag.id, x: point.x - drag.dx, y: point.y - drag.dy });
+    }
+    if (drag.kind === "popup") {
+      const rect = stageRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const pad = 8;
+      const w = Math.min(CHAT_POPUP_WIDTH, stageSize.width - pad * 2);
+      const h = Math.min(CHAT_POPUP_HEIGHT, stageSize.height - pad * 2);
+      const x = Math.max(pad, Math.min(event.clientX - rect.left - drag.dx, stageSize.width - w - pad));
+      const y = Math.max(pad, Math.min(event.clientY - rect.top - drag.dy, stageSize.height - h - pad));
+      setPopupAt({ x, y });
     }
   }
 
@@ -170,7 +202,10 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
           </button>
           <button
             type="button"
-            onClick={() => dispatch({ type: "set-viewport", ...fitViewportToCards(live, stageSize.width, stageSize.height) })}
+            onClick={() => {
+              if (openChatId) return;
+              dispatch({ type: "set-viewport", ...fitViewportToCards(live, stageSize.width, stageSize.height) });
+            }}
           >
             Fit
           </button>
@@ -188,11 +223,12 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
             setStageSize({ width: node.clientWidth, height: node.clientHeight });
           }
         }}
-        className="stage"
+        className={openChatId ? "stage stage-modal-open" : "stage"}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
         onWheel={(event) => {
+          if (openChatId) return;
           event.preventDefault();
           const delta = event.deltaY > 0 ? 1 / 1.08 : 1.08;
           zoomAt(event.clientX, event.clientY, zoom * delta);
@@ -204,6 +240,7 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
           className="stage-pan"
           aria-hidden="true"
           onPointerDown={(event) => {
+            if (openChatId) return;
             if (event.button !== 0) return;
             event.currentTarget.setPointerCapture(event.pointerId);
             dragRef.current = {
@@ -284,13 +321,12 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
             <CardView
               key={card.id}
               card={card}
-              expanded={openChatId === card.id}
+              chatOpen={openChatId === card.id}
               historyOpen={model.openTopicsId === card.id}
               onOpenChat={() => {
                 dispatch({ type: "focus", id: card.id });
                 onOpenChat(card.id);
               }}
-              onCloseChat={() => onOpenChat(null)}
               onPointerDown={(event, openChatOnClick) => {
                 dispatch({ type: "focus", id: card.id });
                 const root = (event.target as HTMLElement).closest(".card");
@@ -315,6 +351,37 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
             />
           ))}
         </div>
+        {openCard && popupAt ? (
+          <>
+            <button
+              type="button"
+              className="canvas-scrim"
+              aria-label="Close chat and return to canvas"
+              onClick={() => onOpenChat(null)}
+            />
+            <ChatPopup
+              card={openCard}
+              left={popupAt.x}
+              top={popupAt.y}
+              width={Math.min(CHAT_POPUP_WIDTH, stageSize.width - 24)}
+              height={Math.min(CHAT_POPUP_HEIGHT, stageSize.height - 24)}
+              onClose={() => onOpenChat(null)}
+              onDragStart={(event) => {
+                event.currentTarget.setPointerCapture(event.pointerId);
+                dragRef.current = {
+                  kind: "popup",
+                  id: openCard.id,
+                  dx: event.clientX - (stageRef.current?.getBoundingClientRect().left ?? 0) - popupAt.x,
+                  dy: event.clientY - (stageRef.current?.getBoundingClientRect().top ?? 0) - popupAt.y,
+                  startClientX: event.clientX,
+                  startClientY: event.clientY,
+                  moved: false,
+                  openChatOnClick: false,
+                };
+              }}
+            />
+          </>
+        ) : null}
       </div>
       {model.archiveOpen ? (
         <ArchiveBin
@@ -331,20 +398,18 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
 
 function CardView({
   card,
-  expanded,
+  chatOpen,
   historyOpen,
   onOpenChat,
-  onCloseChat,
   onPointerDown,
   onArchive,
   onToggleHistory,
   onRetitle,
 }: {
   card: ConversationCard;
-  expanded: boolean;
+  chatOpen: boolean;
   historyOpen: boolean;
   onOpenChat: () => void;
-  onCloseChat: () => void;
   onPointerDown: (event: PointerEvent, openChatOnClick: boolean) => void;
   onArchive: () => void;
   onToggleHistory: () => void;
@@ -368,16 +433,9 @@ function CardView({
 
   return (
     <article
-      className={expanded ? "card card-expanded" : "card"}
-      style={{
-        left: card.x,
-        top: card.y,
-        zIndex: card.zIndex,
-        width: expanded ? EXPANDED_CARD_WIDTH : CARD_WIDTH,
-        height: expanded ? EXPANDED_CARD_HEIGHT : undefined,
-      }}
+      className={chatOpen ? "card card-source-open" : "card"}
+      style={{ left: card.x, top: card.y, zIndex: card.zIndex, width: CARD_WIDTH }}
       onPointerDown={(event) => {
-        if (expanded) return;
         const target = event.target as HTMLElement;
         if (target.closest(".card-title-bar")) return;
         const button = target.closest("button");
@@ -386,14 +444,7 @@ function CardView({
         onPointerDown(event, openChatOnClick);
       }}
     >
-      <header
-        className="card-title-bar"
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          if (!expanded) return;
-          onPointerDown(event, false);
-        }}
-      >
+      <header className="card-title-bar" onPointerDown={(event) => event.stopPropagation()}>
         <span
           className={`status-dot status-${card.status}`}
           title={STATUS_LABEL[card.status]}
@@ -423,41 +474,25 @@ function CardView({
             {card.title}
           </h2>
         )}
-        {expanded ? (
-          <button
-            type="button"
-            className="collapse-chat"
-            onClick={(event) => {
-              event.stopPropagation();
-              onCloseChat();
-            }}
-          >
-            Close
-          </button>
-        ) : null}
       </header>
-      {expanded ? (
-        <ExpandedChatThread card={card} />
-      ) : (
-        <button
-          type="button"
-          className="card-preview preview-snapshot"
-          aria-label={`Open chat. Last message: ${lastMessage.text}${lastMessage.truncated ? "…" : ""}`}
-          onClick={(event) => {
-            event.stopPropagation();
-            onOpenChat();
-          }}
-        >
-          <span className="preview-text">
-            {lastMessage.text}
-            {lastMessage.truncated ? (
-              <span className="preview-ellipsis" aria-hidden="true">
-                …
-              </span>
-            ) : null}
-          </span>
-        </button>
-      )}
+      <button
+        type="button"
+        className="card-preview preview-snapshot"
+        aria-label={`Open chat. Last message: ${lastMessage.text}${lastMessage.truncated ? "…" : ""}`}
+        onClick={(event) => {
+          event.stopPropagation();
+          onOpenChat();
+        }}
+      >
+        <span className="preview-text">
+          {lastMessage.text}
+          {lastMessage.truncated ? (
+            <span className="preview-ellipsis" aria-hidden="true">
+              …
+            </span>
+          ) : null}
+        </span>
+      </button>
       <footer onPointerDown={(event) => event.stopPropagation()}>
         <button
           type="button"
@@ -492,16 +527,48 @@ function CardView({
   );
 }
 
-function ExpandedChatThread({ card }: { card: ConversationCard }) {
+function ChatPopup({
+  card,
+  left,
+  top,
+  width,
+  height,
+  onClose,
+  onDragStart,
+}: {
+  card: ConversationCard;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  onClose: () => void;
+  onDragStart: (event: PointerEvent<HTMLElement>) => void;
+}) {
   return (
-    <div className="chat-thread-expanded" role="region" aria-label={`Chat with ${card.title}`}>
-      <p className="bubble user">Can you pick this back up where we left off?</p>
-      <p className="bubble agent">{card.blurb}</p>
-      <p className="bubble user">Yes — keep going on that thread.</p>
-      <p className="bubble agent">
-        Still on it. I will post an update when the next checkpoint lands.
-      </p>
-      <p className="chat-note">Demo transcript — the product loads the full thread here.</p>
+    <div
+      className="chat-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Chat: ${card.title}`}
+      style={{ left, top, width, height }}
+      onPointerDown={(event) => event.stopPropagation()}
+    >
+      <div className="chat-popup-chrome" onPointerDown={onDragStart}>
+        <span className={`status-dot status-${card.status}`} title={STATUS_LABEL[card.status]} />
+        <strong className="chat-popup-title">{card.title}</strong>
+        <button type="button" className="chat-popup-close" onClick={onClose}>
+          Close
+        </button>
+      </div>
+      <div className="chat-thread-expanded">
+        <p className="bubble user">Can you pick this back up where we left off?</p>
+        <p className="bubble agent">{card.blurb}</p>
+        <p className="bubble user">Yes — keep going on that thread.</p>
+        <p className="bubble agent">
+          Still on it. I will post an update when the next checkpoint lands.
+        </p>
+        <p className="chat-note">Demo transcript — the product loads the full thread here.</p>
+      </div>
     </div>
   );
 }

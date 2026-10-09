@@ -44,7 +44,7 @@ export function DemoPage() {
           Agent chats sit on a desk as picture-and-blurb cards you can move. Color tells you whether a
           thread is working, waiting, unread, read, waiting on you, or marked complete. The archive bin
           remembers where a card lived. Drop a file from Explorer and drag its link onto a chat card.
-          Click the message preview to expand the card into the full thread. Edit the title inline; past titles stay under History.
+          Click the message preview to open a chat window on the canvas (panning pauses while it is open). Edit the title inline; past titles stay under History.
           Drag empty canvas to pan; scroll to zoom.
         </p>
       </header>
