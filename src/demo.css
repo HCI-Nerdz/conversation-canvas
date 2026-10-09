@@ -300,6 +300,14 @@ h1 {
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.45rem 0.55rem 0.55rem;
+  transition:
+    width 160ms ease,
+    height 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.card-expanded {
+  box-shadow: 0 18px 42px var(--shadow);
 }
 
 .card-title-bar {
@@ -317,6 +325,13 @@ h1 {
   height: 0.65rem;
   margin-top: 0.35rem;
   cursor: help;
+}
+
+.card-title-bar .collapse-chat {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.55rem;
 }
 
 .card footer {
@@ -484,45 +499,25 @@ h1 {
   color: var(--text-muted);
 }
 
-.chat-panel {
-  position: absolute;
-  top: 42px;
-  left: 0;
-  bottom: 0;
-  width: min(420px, 92%);
-  background: var(--surface-raised);
-  border-right: 1px solid var(--border-strong);
-  display: flex;
-  flex-direction: column;
-  z-index: 25;
-  box-shadow: 8px 0 24px var(--shadow);
-}
-
-.chat-panel header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.65rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.chat-panel header h2 {
-  margin: 0.15rem 0 0;
-  font-size: 1rem;
-}
-
-.chat-thread {
+.chat-thread-expanded {
   flex: 1;
+  min-height: 0;
   overflow: auto;
-  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding: 0.15rem 0.1rem 0.25rem;
+}
+
+.chat-thread-expanded .bubble {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  max-width: 88%;
 }
 
 .chat-note {
-  margin: 0.5rem 0 0;
+  margin: 0.35rem 0 0;
   font-size: 0.75rem;
   color: var(--text-subtle);
 }

@@ -5,6 +5,8 @@ import {
   activeCards,
   CARD_HEIGHT,
   CARD_WIDTH,
+  EXPANDED_CARD_HEIGHT,
+  EXPANDED_CARD_WIDTH,
   cardsInView,
   fitViewportToCards,
   STATUS_LABEL,
@@ -43,9 +45,14 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
 
   const view = worldViewport(model.viewport, stageSize.width, stageSize.height, 80);
   const live = activeCards(model);
-  const mounted = useMemo(() => cardsInView(live, view), [live, view]);
+  const mounted = useMemo(() => {
+    const inView = cardsInView(live, view);
+    if (!openChatId) return inView;
+    const open = live.find((item) => item.id === openChatId);
+    if (!open || inView.some((item) => item.id === openChatId)) return inView;
+    return [...inView, open];
+  }, [live, view, openChatId]);
   const archived = archivedCards(model);
-  const openChat = openChatId ? model.cards.find((c) => c.id === openChatId) ?? null : null;
 
   useEffect(() => {
     if (fitRequest === 0) return;
@@ -277,11 +284,17 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
             <CardView
               key={card.id}
               card={card}
+              expanded={openChatId === card.id}
               historyOpen={model.openTopicsId === card.id}
-              onOpenChat={() => onOpenChat(card.id)}
+              onOpenChat={() => {
+                dispatch({ type: "focus", id: card.id });
+                onOpenChat(card.id);
+              }}
+              onCloseChat={() => onOpenChat(null)}
               onPointerDown={(event, openChatOnClick) => {
                 dispatch({ type: "focus", id: card.id });
-                event.currentTarget.setPointerCapture(event.pointerId);
+                const root = (event.target as HTMLElement).closest(".card");
+                root?.setPointerCapture(event.pointerId);
                 const point = worldPoint(event);
                 dragRef.current = {
                   kind: "card",
@@ -303,9 +316,6 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
           ))}
         </div>
       </div>
-      {openChat ? (
-        <ChatPanel card={openChat} onClose={() => onOpenChat(null)} />
-      ) : null}
       {model.archiveOpen ? (
         <ArchiveBin
           cards={archived}
@@ -321,16 +331,20 @@ export function ConversationDesk({ model, dispatch, openChatId, onOpenChat, fitR
 
 function CardView({
   card,
+  expanded,
   historyOpen,
   onOpenChat,
+  onCloseChat,
   onPointerDown,
   onArchive,
   onToggleHistory,
   onRetitle,
 }: {
   card: ConversationCard;
+  expanded: boolean;
   historyOpen: boolean;
   onOpenChat: () => void;
+  onCloseChat: () => void;
   onPointerDown: (event: PointerEvent, openChatOnClick: boolean) => void;
   onArchive: () => void;
   onToggleHistory: () => void;
@@ -354,9 +368,16 @@ function CardView({
 
   return (
     <article
-      className="card"
-      style={{ left: card.x, top: card.y, zIndex: card.zIndex, width: CARD_WIDTH }}
+      className={expanded ? "card card-expanded" : "card"}
+      style={{
+        left: card.x,
+        top: card.y,
+        zIndex: card.zIndex,
+        width: expanded ? EXPANDED_CARD_WIDTH : CARD_WIDTH,
+        height: expanded ? EXPANDED_CARD_HEIGHT : undefined,
+      }}
       onPointerDown={(event) => {
+        if (expanded) return;
         const target = event.target as HTMLElement;
         if (target.closest(".card-title-bar")) return;
         const button = target.closest("button");
@@ -367,7 +388,11 @@ function CardView({
     >
       <header
         className="card-title-bar"
-        onPointerDown={(event) => event.stopPropagation()}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          if (!expanded) return;
+          onPointerDown(event, false);
+        }}
       >
         <span
           className={`status-dot status-${card.status}`}
@@ -398,25 +423,41 @@ function CardView({
             {card.title}
           </h2>
         )}
+        {expanded ? (
+          <button
+            type="button"
+            className="collapse-chat"
+            onClick={(event) => {
+              event.stopPropagation();
+              onCloseChat();
+            }}
+          >
+            Close
+          </button>
+        ) : null}
       </header>
-      <button
-        type="button"
-        className="card-preview preview-snapshot"
-        aria-label={`Open chat. Last message: ${lastMessage.text}${lastMessage.truncated ? "…" : ""}`}
-        onClick={(event) => {
-          event.stopPropagation();
-          onOpenChat();
-        }}
-      >
-        <span className="preview-text">
-          {lastMessage.text}
-          {lastMessage.truncated ? (
-            <span className="preview-ellipsis" aria-hidden="true">
-              …
-            </span>
-          ) : null}
-        </span>
-      </button>
+      {expanded ? (
+        <ExpandedChatThread card={card} />
+      ) : (
+        <button
+          type="button"
+          className="card-preview preview-snapshot"
+          aria-label={`Open chat. Last message: ${lastMessage.text}${lastMessage.truncated ? "…" : ""}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenChat();
+          }}
+        >
+          <span className="preview-text">
+            {lastMessage.text}
+            {lastMessage.truncated ? (
+              <span className="preview-ellipsis" aria-hidden="true">
+                …
+              </span>
+            ) : null}
+          </span>
+        </button>
+      )}
       <footer onPointerDown={(event) => event.stopPropagation()}>
         <button
           type="button"
@@ -451,24 +492,17 @@ function CardView({
   );
 }
 
-function ChatPanel({ card, onClose }: { card: ConversationCard; onClose: () => void }) {
+function ExpandedChatThread({ card }: { card: ConversationCard }) {
   return (
-    <aside className="chat-panel" aria-label={`Chat: ${card.title}`}>
-      <header>
-        <div>
-          <span className={`status-dot status-${card.status}`} />
-          <h2>{card.title}</h2>
-        </div>
-        <button type="button" onClick={onClose}>
-          Close
-        </button>
-      </header>
-      <div className="chat-thread">
-        <p className="bubble user">Can you pick this back up?</p>
-        <p className="bubble agent">{card.blurb}</p>
-        <p className="chat-note">Demo transcript — in the product this opens the full thread.</p>
-      </div>
-    </aside>
+    <div className="chat-thread-expanded" role="region" aria-label={`Chat with ${card.title}`}>
+      <p className="bubble user">Can you pick this back up where we left off?</p>
+      <p className="bubble agent">{card.blurb}</p>
+      <p className="bubble user">Yes — keep going on that thread.</p>
+      <p className="bubble agent">
+        Still on it. I will post an update when the next checkpoint lands.
+      </p>
+      <p className="chat-note">Demo transcript — the product loads the full thread here.</p>
+    </div>
   );
 }
 
