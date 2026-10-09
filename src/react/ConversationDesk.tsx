@@ -351,10 +351,6 @@ function CardView({
         <span className="status-dot" />
         <span>{STATUS_LABEL[card.status]}</span>
       </header>
-      <div className="preview preview-snapshot" aria-hidden="true">
-        <p className="bubble user">…</p>
-        <p className="bubble agent">{card.blurb}</p>
-      </div>
       {editingTitle ? (
         <input
           className="title-input"
@@ -381,6 +377,10 @@ function CardView({
           {card.title}
         </h2>
       )}
+      <div className="preview preview-snapshot" aria-hidden="true">
+        <p className="bubble user">…</p>
+        <p className="bubble agent">{card.blurb}</p>
+      </div>
       <footer>
         <button
           type="button"
