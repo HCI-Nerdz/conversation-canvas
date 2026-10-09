@@ -40,12 +40,12 @@ export function DemoPage() {
         <p className="eyebrow">Demo · Agent Canvas</p>
         <h1>Agent Canvas</h1>
         <p className="lede">
-          Agent chats sit on a desk as picture-and-blurb cards you can move. The lamp beside{" "}
+          Agent chats sit on a desk as previews you can move. The lamp beside{" "}
           <strong>History</strong> uses flashing green (agent working), solid green (hold until CI), yellow
           (needs attention), a grey
           ring (read, clean composer), grey fill (dirty composer), yellow/grey split (needs attention +
           dirty), or red (error); sign off and the lamp goes away. The archive bin
-          remembers where a card lived. Drop a file from Explorer and drag its link onto a chat card.
+          remembers where a chat lived. Drop a file from Explorer and drag its link onto a chat.
           On desktop, opening previews adds <strong>floating chat panels</strong> on the desk so you can
           pan the canvas and keep several threads open. Use <strong>Pop out</strong> inside a panel to try the
           browser window mechanism (allow pop-ups if prompted). On smaller screens, one panel dims the desk and
@@ -62,9 +62,9 @@ export function DemoPage() {
             setFitRequest((n) => n + 1);
           }}
         >
-          Add 120 shell cards
+          Add 120 chats
         </button>
-        <span>Stress test — fits the grid into view afterward.</span>
+        <span>Stress test — fits every chat on the desk into view afterward.</span>
       </p>
       <section className="facsimile" aria-label="Agent Canvas facsimile">
         <div className="caption">

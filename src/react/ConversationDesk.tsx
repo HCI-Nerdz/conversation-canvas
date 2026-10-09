@@ -8,6 +8,7 @@ import {
   CHAT_POPUP_HEIGHT,
   CHAT_POPUP_WIDTH,
   cardsInView,
+  clampViewportZoom,
   fitViewportToCards,
   inboxStatusForDisplay,
   showsInboxStatusLight,
@@ -125,7 +126,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
       const viewport = modelRef.current.viewport;
       const zoom = viewport.zoom || 1;
       const delta = event.deltaY > 0 ? 1 / 1.08 : 1.08;
-      const clamped = Math.min(2.5, Math.max(0.25, zoom * delta));
+      const clamped = clampViewportZoom(zoom * delta);
       const ratio = clamped / zoom;
       const px = event.clientX - rect.left;
       const py = event.clientY - rect.top;
@@ -166,7 +167,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
     const rect = stageRef.current?.getBoundingClientRect();
     if (!rect) return;
     const zoom = model.viewport.zoom || 1;
-    const clamped = Math.min(2.5, Math.max(0.25, nextZoom));
+    const clamped = clampViewportZoom(nextZoom);
     const ratio = clamped / zoom;
     const px = clientX - rect.left;
     const py = clientY - rect.top;
@@ -371,7 +372,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
                 type="button"
                 className="port"
                 aria-label={`Connect ${file.name} to a chat`}
-                title="Drag onto a chat card"
+                title="Drag onto a chat"
                 onPointerDown={(event) => {
                   event.stopPropagation();
                   dragRef.current = {

@@ -68,6 +68,13 @@ export const CARD_GRID_GAP_X = 16;
 export const CARD_GRID_GAP_Y = 20;
 export const CARD_GRID_STEP_X = CARD_WIDTH + CARD_GRID_GAP_X;
 export const CARD_GRID_STEP_Y = CARD_HEIGHT + CARD_GRID_GAP_Y;
+
+export const VIEWPORT_ZOOM_MIN = 0.06;
+export const VIEWPORT_ZOOM_MAX = 2.5;
+
+export function clampViewportZoom(zoom: number): number {
+  return Math.min(VIEWPORT_ZOOM_MAX, Math.max(VIEWPORT_ZOOM_MIN, zoom));
+}
 export const CHAT_POPUP_WIDTH = 520;
 export const CHAT_POPUP_HEIGHT = 560;
 
@@ -175,12 +182,12 @@ export function fitViewportToCards(
   for (const card of cards) {
     minX = Math.min(minX, card.x);
     minY = Math.min(minY, card.y);
-    maxX = Math.max(maxX, card.x + CARD_WIDTH);
-    maxY = Math.max(maxY, card.y + CARD_HEIGHT);
+    maxX = Math.max(maxX, card.x + CARD_GRID_STEP_X);
+    maxY = Math.max(maxY, card.y + CARD_GRID_STEP_Y);
   }
   const worldW = maxX - minX + padding * 2;
   const worldH = maxY - minY + padding * 2;
-  const zoom = Math.min(2.5, Math.max(0.25, Math.min(stageWidth / worldW, stageHeight / worldH)));
+  const zoom = clampViewportZoom(Math.min(stageWidth / worldW, stageHeight / worldH));
   const x = (stageWidth - (maxX - minX + padding * 2) * zoom) / 2 - (minX - padding) * zoom;
   const y = (stageHeight - (maxY - minY + padding * 2) * zoom) / 2 - (minY - padding) * zoom;
   return { x, y, zoom };

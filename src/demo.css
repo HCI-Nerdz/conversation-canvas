@@ -150,6 +150,8 @@ h1 {
 }
 
 .facsimile {
+  max-width: 52rem;
+  margin-inline: auto;
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
@@ -176,7 +178,6 @@ h1 {
 
 .desk {
   position: relative;
-  height: 640px;
   overscroll-behavior: contain;
   background: var(--surface-inset);
 }
@@ -247,6 +248,10 @@ h1 {
 
 .stage {
   position: relative;
+  width: min(38rem, 100%);
+  height: 640px;
+  margin-inline: auto;
+  border-inline: 1px solid var(--border);
   overscroll-behavior: contain;
   height: calc(100% - 42px);
   overflow: hidden;

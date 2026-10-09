@@ -141,8 +141,8 @@ export function fillerCards(
   return Array.from({ length: count }, (_, index) =>
     card(
       `fill-${index}`,
-      `Thread ${index + 1}`,
-      "Shell card only — open it to read the transcript.",
+      `Chat ${index + 1}`,
+      "Demo shell — open to read the transcript.",
       cycle[index % cycle.length] ?? "read",
       originX + (index % columns) * CARD_GRID_STEP_X,
       originY + Math.floor(index / columns) * CARD_GRID_STEP_Y,

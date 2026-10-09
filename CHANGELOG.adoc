@@ -3,6 +3,7 @@
 == 2026-10-09 — Conversation canvas desk
 
 * Mock chat composer with scripted thinking indicator and disclaimer in the full chat panel.
+* Fit can zoom out far enough to include seed chats plus 120 fillers; demo copy says chats not cards; canvas narrower than toolbar.
 * Shell-card stress grid uses proper row/column stride so fillers do not overlap each other.
 * Fix zoom and pan after “Add 120 shell cards” (fit no longer re-runs on every viewport change); add 100% zoom control.
 * Lamp colors: flashing green working, solid green CI hold, yellow needs-attention, grey ring read, grey fill dirty, split yellow/grey, red error.

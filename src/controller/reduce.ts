@@ -3,6 +3,7 @@ import {
   nextZ,
   restoreCard,
   retitleCard,
+  clampViewportZoom,
   type ArchiveViewMode,
   type CanvasModel,
   type ConversationCard,
@@ -49,7 +50,7 @@ export function reduceCanvas(model: CanvasModel, action: CanvasAction): CanvasMo
     case "set-viewport":
       return {
         ...model,
-        viewport: { x: action.x, y: action.y, zoom: Math.min(2.5, Math.max(0.25, action.zoom)) },
+        viewport: { x: action.x, y: action.y, zoom: clampViewportZoom(action.zoom) },
       };
     case "set-status": {
       const current = model.cards.find((card) => card.id === action.id);

@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { CARD_GRID_STEP_X, CARD_GRID_STEP_Y, CARD_HEIGHT } from "../core/model.ts";
+import {
+  CARD_GRID_STEP_X,
+  CARD_GRID_STEP_Y,
+  CARD_HEIGHT,
+  fitViewportToCards,
+} from "../core/model.ts";
 import { demoModel, fillerCards, fillerGridOrigin } from "./demoSeed.ts";
 
 test("filler grid starts below the seeded demo cards", () => {
@@ -24,6 +29,17 @@ test("repeated filler batches stack without overlapping prior fillers", () => {
   );
   assert.equal(overlap, false);
   assert.ok(batchB[0] && batchB[0].y > batchA[0]!.y);
+});
+
+test("fit viewport includes seed chats and 120 fillers together", () => {
+  const all = [...demoModel.cards, ...fillerCards(120, demoModel.cards)];
+  const vp = fitViewportToCards(all, 608, 640);
+  const visibleTop = -vp.y / vp.zoom;
+  const visibleBottom = visibleTop + 640 / vp.zoom;
+  const minY = Math.min(...all.map((c) => c.y));
+  const maxY = Math.max(...all.map((c) => c.y + CARD_GRID_STEP_Y));
+  assert.ok(visibleTop <= minY + 2);
+  assert.ok(visibleBottom >= maxY - 2);
 });
 
 test("filler grid rows and columns leave gap between card footprints", () => {

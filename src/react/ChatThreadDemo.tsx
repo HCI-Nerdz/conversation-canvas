@@ -13,7 +13,7 @@ interface ChatMessage {
 const MOCK_AGENT_REPLIES = [
   "Understood — in the product this would go to your agent. This reply is demo-only.",
   "Noted. No model is running here; this is a stand-in while the agent would work.",
-  "Got it. The real app would stream tokens and update status on the card.",
+  "Got it. The real app would stream tokens and update status on the chat.",
 ] as const;
 
 function seedMessages(blurb: string): ChatMessage[] {
