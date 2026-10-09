@@ -299,7 +299,23 @@ h1 {
   padding: 0.45rem 0.55rem 0.5rem;
 }
 
-.card header,
+.card-title-bar {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+  padding: 0.15rem 0 0.4rem;
+  margin: 0 0 0.15rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-title-bar .status-dot {
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-top: 0.35rem;
+  cursor: help;
+}
+
 .card footer {
   display: flex;
   gap: 0.35rem;
@@ -315,10 +331,14 @@ h1 {
 
 .card h2,
 .card h3 {
-  margin: 0.25rem 0 0.35rem;
-  font-size: 0.95rem;
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.35;
   cursor: text;
   color: var(--text);
+  flex: 1;
+  min-width: 0;
 }
 
 .card h2:hover {
@@ -326,16 +346,18 @@ h1 {
 }
 
 .title-input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   box-sizing: border-box;
-  margin: 0.25rem 0 0.35rem;
-  padding: 0.2rem 0.35rem;
+  margin: 0;
+  padding: 0.25rem 0.4rem;
   border: 1px solid var(--border-strong);
   border-radius: 6px;
   background: var(--surface);
   color: var(--text);
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
+  font-weight: 600;
 }
 
 .card p {

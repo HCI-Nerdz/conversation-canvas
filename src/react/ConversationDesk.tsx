@@ -347,36 +347,39 @@ function CardView({
       style={{ left: card.x, top: card.y, zIndex: card.zIndex, width: CARD_WIDTH }}
       onPointerDown={onPointerDown}
     >
-      <header>
-        <span className="status-dot" />
-        <span>{STATUS_LABEL[card.status]}</span>
-      </header>
-      {editingTitle ? (
-        <input
-          className="title-input"
-          value={draftTitle}
-          autoFocus
-          onChange={(event) => setDraftTitle(event.target.value)}
-          onBlur={commitTitle}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") commitTitle();
-            if (event.key === "Escape") {
-              setDraftTitle(card.title);
-              setEditingTitle(false);
-            }
-          }}
-          onPointerDown={(event) => event.stopPropagation()}
+      <header className="card-title-bar">
+        <span
+          className="status-dot"
+          title={STATUS_LABEL[card.status]}
+          aria-label={`Status: ${STATUS_LABEL[card.status]}`}
         />
-      ) : (
-        <h2
-          onClick={(event) => {
-            event.stopPropagation();
-            setEditingTitle(true);
-          }}
-        >
-          {card.title}
-        </h2>
-      )}
+        {editingTitle ? (
+          <input
+            className="title-input"
+            value={draftTitle}
+            autoFocus
+            onChange={(event) => setDraftTitle(event.target.value)}
+            onBlur={commitTitle}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") commitTitle();
+              if (event.key === "Escape") {
+                setDraftTitle(card.title);
+                setEditingTitle(false);
+              }
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+          />
+        ) : (
+          <h2
+            onClick={(event) => {
+              event.stopPropagation();
+              setEditingTitle(true);
+            }}
+          >
+            {card.title}
+          </h2>
+        )}
+      </header>
       <div className="preview preview-snapshot" aria-hidden="true">
         <p className="bubble user">…</p>
         <p className="bubble agent">{card.blurb}</p>
