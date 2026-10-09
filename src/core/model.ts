@@ -108,6 +108,31 @@ export function cardsInView(cards: readonly ConversationCard[], view: WorldRect)
   return cards.filter((card) => intersects(card, view));
 }
 
+export function fitViewportToCards(
+  cards: readonly Pick<ConversationCard, "x" | "y">[],
+  stageWidth: number,
+  stageHeight: number,
+  padding = 48,
+): CanvasViewport {
+  if (cards.length === 0) return { x: 24, y: 24, zoom: 1 };
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const card of cards) {
+    minX = Math.min(minX, card.x);
+    minY = Math.min(minY, card.y);
+    maxX = Math.max(maxX, card.x + CARD_WIDTH);
+    maxY = Math.max(maxY, card.y + CARD_HEIGHT);
+  }
+  const worldW = maxX - minX + padding * 2;
+  const worldH = maxY - minY + padding * 2;
+  const zoom = Math.min(2.5, Math.max(0.25, Math.min(stageWidth / worldW, stageHeight / worldH)));
+  const x = (stageWidth - (maxX - minX + padding * 2) * zoom) / 2 - (minX - padding) * zoom;
+  const y = (stageHeight - (maxY - minY + padding * 2) * zoom) / 2 - (minY - padding) * zoom;
+  return { x, y, zoom };
+}
+
 export function nextZ(cards: readonly { zIndex: number }[]): number {
   return cards.reduce((max, card) => Math.max(max, card.zIndex), 0) + 1;
 }

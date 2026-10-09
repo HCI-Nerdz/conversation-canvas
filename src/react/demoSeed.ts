@@ -92,14 +92,17 @@ export const demoModel: CanvasModel = {
 };
 
 export function fillerCards(count: number): ConversationCard[] {
+  const columns = 10;
+  const colWidth = 232;
+  const rowHeight = 196;
   return Array.from({ length: count }, (_, index) =>
     card(
       `fill-${index}`,
       `Thread ${index + 1}`,
-      "Placeholder shell. The transcript is not loaded.",
+      "Shell card only — open it to read the transcript.",
       index % 5 === 0 ? "working" : "read",
-      40 + (index % 12) * 240,
-      520 + Math.floor(index / 12) * 200,
+      32 + (index % columns) * colWidth,
+      32 + Math.floor(index / columns) * rowHeight,
     ),
   );
 }

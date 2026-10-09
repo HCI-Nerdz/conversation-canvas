@@ -14,6 +14,7 @@ export type CanvasAction =
   | { type: "move-card"; id: string; x: number; y: number }
   | { type: "focus"; id: string }
   | { type: "pan"; x: number; y: number }
+  | { type: "set-viewport"; x: number; y: number; zoom: number }
   | { type: "set-status"; id: string; status: InboxStatus }
   | { type: "archive"; id: string; at: string }
   | { type: "restore"; id: string }
@@ -45,6 +46,11 @@ export function reduceCanvas(model: CanvasModel, action: CanvasAction): CanvasMo
     }
     case "pan":
       return { ...model, viewport: { ...model.viewport, x: action.x, y: action.y } };
+    case "set-viewport":
+      return {
+        ...model,
+        viewport: { x: action.x, y: action.y, zoom: Math.min(2.5, Math.max(0.25, action.zoom)) },
+      };
     case "set-status": {
       const current = model.cards.find((card) => card.id === action.id);
       if (!current) return model;

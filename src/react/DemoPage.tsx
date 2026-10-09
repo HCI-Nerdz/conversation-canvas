@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 
 import { reduceCanvas } from "../controller/reduce.ts";
 import { ConversationDesk } from "./ConversationDesk.tsx";
@@ -6,6 +6,8 @@ import { demoModel, fillerCards } from "./demoSeed.ts";
 
 export function DemoPage() {
   const [model, dispatch] = useReducer(reduceCanvas, demoModel);
+  const [openChatId, setOpenChatId] = useState<string | null>(null);
+  const [fitRequest, setFitRequest] = useState(0);
 
   return (
     <main className="page">
@@ -25,18 +27,22 @@ export function DemoPage() {
         <p className="lede">
           Agent chats sit on a desk as picture-and-blurb cards you can move. Color tells you whether a
           thread is working, waiting, unread, read, waiting on you, or marked complete. The archive bin
-          remembers where a card lived. Drop a file from Explorer and drag a link into the chat that
-          should start from it. When the title changes, the old title stays in a topic list, newest first.
+          remembers where a card lived. Drop a file from Explorer and drag its link onto a chat card.
+          Click a card to open the thread. Edit the title inline; past titles stay under History.
+          Drag empty canvas to pan; scroll to zoom.
         </p>
       </header>
       <p className="harness">
         <button
           type="button"
-          onClick={() => dispatch({ type: "add-cards", cards: fillerCards(120) })}
+          onClick={() => {
+            dispatch({ type: "add-cards", cards: fillerCards(120) });
+            setFitRequest((n) => n + 1);
+          }}
         >
           Add 120 shell cards
         </button>
-        <span>Demo control. The product desk is the canvas below.</span>
+        <span>Stress test — fits the grid into view afterward.</span>
       </p>
       <section className="facsimile" aria-label="Conversation canvas facsimile">
         <div className="caption">
@@ -45,7 +51,13 @@ export function DemoPage() {
           <span />
           <strong>Agent desk</strong>
         </div>
-        <ConversationDesk model={model} dispatch={dispatch} />
+        <ConversationDesk
+          model={model}
+          dispatch={dispatch}
+          openChatId={openChatId}
+          onOpenChat={setOpenChatId}
+          fitRequest={fitRequest}
+        />
       </section>
     </main>
   );

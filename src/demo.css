@@ -95,10 +95,49 @@ h1 {
   border-bottom: 1px solid #44403c;
 }
 
-.desk-bar p {
-  margin: 0;
+.view-tools {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.zoom-readout {
+  min-width: 3rem;
+  text-align: center;
+  font-size: 0.8rem;
   color: #a8a29e;
-  font-size: 0.85rem;
+}
+
+.archive-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.5rem;
+}
+
+.archive-count {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.15rem;
+  min-width: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: #fdba74;
+  color: #1c1917;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 .stage {
@@ -110,11 +149,28 @@ h1 {
     linear-gradient(90deg, #292524 1px, transparent 1px);
   background-size: 32px 32px;
   touch-action: none;
+  cursor: grab;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.stage-pan {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .world {
   position: absolute;
   inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.world > * {
+  pointer-events: auto;
 }
 
 .edges {
@@ -156,6 +212,23 @@ h1 {
 .card h3 {
   margin: 0.35rem 0 0.15rem;
   font-size: 0.95rem;
+  cursor: text;
+}
+
+.card h2:hover {
+  color: #fdba74;
+}
+
+.title-input {
+  width: 100%;
+  margin: 0.35rem 0 0.15rem;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid #78716c;
+  border-radius: 6px;
+  background: #292524;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
 }
 
 .card p {
@@ -169,24 +242,49 @@ h1 {
 }
 
 .preview {
-  display: grid;
-  gap: 0.28rem;
-  height: 64px;
   margin-top: 0.35rem;
   padding: 0.45rem;
   border-radius: 6px;
   background: #292524;
 }
 
-.preview span {
-  display: block;
-  height: 8px;
-  border-radius: 99px;
-  background: #57534e;
+.preview-snapshot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 64px;
 }
 
-.preview span:first-child {
-  width: 70%;
+.bubble {
+  margin: 0;
+  padding: 0.35rem 0.45rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bubble.user {
+  align-self: flex-end;
+  max-width: 85%;
+  background: #44403c;
+  color: #e7e5e4;
+}
+
+.bubble.agent {
+  align-self: flex-start;
+  max-width: 92%;
+  background: #1c1917;
+  border: 1px solid #57534e;
+  color: #d6d3d1;
+}
+
+.icon-button {
+  margin-left: auto;
+  padding: 0.25rem 0.35rem;
 }
 
 .status-dot {
@@ -209,10 +307,53 @@ h1 {
   font-size: 0.8rem;
 }
 
-.topics {
+.history {
   margin: 0.4rem 0 0;
   padding-left: 1rem;
   font-size: 0.75rem;
+}
+
+.chat-panel {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  bottom: 0;
+  width: min(420px, 92%);
+  background: #1c1917;
+  border-right: 1px solid #57534e;
+  display: flex;
+  flex-direction: column;
+  z-index: 25;
+  box-shadow: 8px 0 24px rgb(0 0 0 / 0.35);
+}
+
+.chat-panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #44403c;
+}
+
+.chat-panel header h2 {
+  margin: 0.15rem 0 0;
+  font-size: 1rem;
+}
+
+.chat-thread {
+  flex: 1;
+  overflow: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chat-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: #78716c;
 }
 
 .archive {
