@@ -10,6 +10,7 @@ import {
   cardsInView,
   fitViewportToCards,
   STATUS_LABEL,
+  showsInboxStatusLight,
   worldViewport,
   type ArchiveViewMode,
   type CanvasModel,
@@ -352,6 +353,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
               onRetitle={(title) =>
                 dispatch({ type: "retitle", id: card.id, title, at: new Date().toISOString() })
               }
+              onSignOff={() => dispatch({ type: "set-status", id: card.id, status: "signedOff" })}
             />
           ))}
         </div>
@@ -420,6 +422,7 @@ function CardView({
   onArchive,
   onToggleHistory,
   onRetitle,
+  onSignOff,
 }: {
   card: ConversationCard;
   chatOpen: boolean;
@@ -429,6 +432,7 @@ function CardView({
   onArchive: () => void;
   onToggleHistory: () => void;
   onRetitle: (title: string) => void;
+  onSignOff: () => void;
 }) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState(card.title);
@@ -461,36 +465,24 @@ function CardView({
     >
       <header className="card-title-bar">
         {editingTitle ? (
-          <>
-            <input
-              className="title-input"
-              value={draftTitle}
-              autoFocus
-              onChange={(event) => setDraftTitle(event.target.value)}
-              onBlur={commitTitle}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") commitTitle();
-                if (event.key === "Escape") {
-                  setDraftTitle(card.title);
-                  setEditingTitle(false);
-                }
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-            />
-            <span
-              className={`status-dot status-${card.status}`}
-              title={STATUS_LABEL[card.status]}
-              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
-            />
-          </>
+          <input
+            className="title-input"
+            value={draftTitle}
+            autoFocus
+            onChange={(event) => setDraftTitle(event.target.value)}
+            onBlur={commitTitle}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") commitTitle();
+              if (event.key === "Escape") {
+                setDraftTitle(card.title);
+                setEditingTitle(false);
+              }
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+          />
         ) : (
           <div className="card-title-row">
             <h2>{card.title}</h2>
-            <span
-              className={`status-dot status-${card.status}`}
-              title={STATUS_LABEL[card.status]}
-              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
-            />
             <button
               type="button"
               className="title-edit icon-button"
@@ -524,16 +516,32 @@ function CardView({
           ) : null}
         </span>
       </button>
-      <footer onPointerDown={(event) => event.stopPropagation()}>
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onToggleHistory();
-          }}
-        >
-          History
-        </button>
+      <footer className="card-footer" onPointerDown={(event) => event.stopPropagation()}>
+        <div className="card-footer-left">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleHistory();
+            }}
+          >
+            History
+          </button>
+          {showsInboxStatusLight(card.status) ? (
+            <button
+              type="button"
+              className={`card-status-light status-dot status-${card.status}`}
+              title={`${STATUS_LABEL[card.status]} — click to sign off (demo)`}
+              aria-label={`Status: ${STATUS_LABEL[card.status]}. Sign off after review (demo).`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onSignOff();
+              }}
+            />
+          ) : (
+            <span className="visually-hidden">Signed off — no status lamp</span>
+          )}
+        </div>
         <button
           type="button"
           className="icon-button"
@@ -600,11 +608,15 @@ function ChatPopup({
       <div className="chat-popup-chrome">
         <div className="chat-popup-drag" onPointerDown={onDragStart}>
           <strong className="chat-popup-title">{card.title}</strong>
-          <span
-            className={`status-dot status-${card.status}`}
-            title={STATUS_LABEL[card.status]}
-            aria-label={`Status: ${STATUS_LABEL[card.status]}`}
-          />
+          {showsInboxStatusLight(card.status) ? (
+            <span
+              className={`status-dot status-${card.status}`}
+              title={STATUS_LABEL[card.status]}
+              aria-label={`Status: ${STATUS_LABEL[card.status]}`}
+            />
+          ) : (
+            <span className="visually-hidden">Signed off</span>
+          )}
         </div>
         <div className="chat-popup-actions">
           <button

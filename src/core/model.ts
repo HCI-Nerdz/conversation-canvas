@@ -4,7 +4,7 @@ export type InboxStatus =
   | "unread"
   | "read"
   | "needsResponse"
-  | "completed";
+  | "signedOff";
 
 export type ArchiveViewMode = "spatial" | "grid" | "list";
 
@@ -67,8 +67,13 @@ export const STATUS_LABEL: Record<InboxStatus, string> = {
   unread: "Unread",
   read: "Read",
   needsResponse: "Needs response",
-  completed: "Completed",
+  signedOff: "Signed off",
 };
+
+/** Inbox threads you reviewed and marked done show no lamp on the card. */
+export function showsInboxStatusLight(status: InboxStatus): boolean {
+  return status !== "signedOff";
+}
 
 export interface WorldRect {
   readonly x: number;

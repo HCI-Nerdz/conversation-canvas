@@ -82,8 +82,8 @@ export const demoModel: CanvasModel = {
     card(
       "done",
       "Icon pass",
-      "You marked this complete. It stays on the desk until you archive it.",
-      "completed",
+      "You signed this off after review. No status lamp — it stays on the desk until you archive it.",
+      "signedOff",
       600,
       260,
       ["Favicon", "Eye mark"],

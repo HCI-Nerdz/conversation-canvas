@@ -484,21 +484,11 @@ h1 {
   flex-shrink: 0;
 }
 
-.card-title-row .status-dot {
-  margin-right: 0.05rem;
-}
-
-.card-title-bar .status-dot {
-  flex-shrink: 0;
-  width: 0.65rem;
-  height: 0.65rem;
-  cursor: help;
-}
-
-.card footer {
+.card-footer {
   display: flex;
   gap: 0.35rem;
   align-items: center;
+  justify-content: space-between;
   margin-top: 0.15rem;
   padding-top: 0.35rem;
   border-top: 1px solid var(--border);
@@ -506,9 +496,34 @@ h1 {
   color: var(--text-muted);
 }
 
-.card footer button {
+.card-footer-left {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.card-footer button {
   font-size: 0.72rem;
   padding: 0.25rem 0.5rem;
+}
+
+.card-status-light {
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.card-status-light:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
 }
 
 .card h2,
@@ -652,7 +667,6 @@ h1 {
 .status-dot.status-unread { color: #93c5fd; }
 .status-dot.status-read { color: #a8a29e; }
 .status-dot.status-needsResponse { color: #c4b5fd; }
-.status-dot.status-completed { color: #86efac; }
 
 .file-node {
   width: 148px;
