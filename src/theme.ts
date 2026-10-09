@@ -1,9 +1,10 @@
 export type DemoTheme = "light" | "dark";
 
-const STORAGE_KEY = "conversation-canvas-theme";
+const STORAGE_KEY = "agent-canvas-theme";
+const LEGACY_STORAGE_KEY = "conversation-canvas-theme";
 
 export function readStoredTheme(): DemoTheme {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
   return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }

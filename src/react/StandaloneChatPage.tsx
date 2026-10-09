@@ -24,12 +24,12 @@ export function StandaloneChatPage({ chatId }: { chatId: string }) {
 
   useEffect(() => {
     applyDemoTheme(readStoredTheme());
-    document.title = `${card.title} · Agent Chat - canvas`;
+    document.title = `${card.title} · Agent Canvas`;
   }, [card.title]);
 
   useEffect(() => {
     function notifyClosed() {
-      window.opener?.postMessage({ type: "conversation-canvas:chat-closed", id: chatId }, "*");
+      window.opener?.postMessage({ type: "agent-canvas:chat-closed", id: chatId }, "*");
     }
     window.addEventListener("beforeunload", notifyClosed);
     return () => window.removeEventListener("beforeunload", notifyClosed);

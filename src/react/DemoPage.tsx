@@ -22,7 +22,7 @@ export function DemoPage() {
           <span aria-hidden="true">/</span>
           <a href="https://hci-nerdz.github.io/demos/">Demos</a>
           <span aria-hidden="true">/</span>
-          <span aria-current="page">Agent Chat - canvas</span>
+          <span aria-current="page">Agent Canvas</span>
         </nav>
         <button
           type="button"
@@ -37,8 +37,8 @@ export function DemoPage() {
         <a href="https://github.com/HCI-Nerdz/conversation-canvas">GitHub</a>
       </p>
       <header>
-        <p className="eyebrow">Demo · Agent Chat - canvas</p>
-        <h1>Agent Chat - canvas</h1>
+        <p className="eyebrow">Demo · Agent Canvas</p>
+        <h1>Agent Canvas</h1>
         <p className="lede">
           Agent chats sit on a desk as picture-and-blurb cards you can move. The lamp beside{" "}
           <strong>History</strong> uses solid green (agent working), flashing green (waiting on CI),
@@ -66,7 +66,7 @@ export function DemoPage() {
         </button>
         <span>Stress test — fits the grid into view afterward.</span>
       </p>
-      <section className="facsimile" aria-label="Agent Chat - canvas facsimile">
+      <section className="facsimile" aria-label="Agent Canvas facsimile">
         <div className="caption">
           <span />
           <span />

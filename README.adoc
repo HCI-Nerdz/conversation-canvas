@@ -1,13 +1,13 @@
 ifndef::env-github[:icons: font]
 :toc: preamble
 
-= Agent Chat - canvas
+= Agent Canvas
 
 Agent chats as movable picture-and-blurb cards, with inbox statuses, an archive bin, and file-to-chat links.
 
-link:https://hci-nerdz.github.io/conversation-canvas/[Try the demo]
+link:https://hci-nerdz.github.io/agent-canvas/[Try the demo]
 ·
-link:https://hci-nerdz.github.io/docs/hci-nerdz/conversation-canvas.html[Explore the docs]
+link:https://hci-nerdz.github.io/docs/hci-nerdz/agent-canvas.html[Explore the docs]
 
 == What you can do
 

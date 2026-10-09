@@ -8,7 +8,8 @@ export interface ChatWindowSnapshot {
   readonly status: InboxStatus;
 }
 
-const STORAGE_PREFIX = "conversation-canvas:chat:";
+const STORAGE_PREFIX = "agent-canvas:chat:";
+const LEGACY_STORAGE_PREFIX = "conversation-canvas:chat:";
 
 /** Desktop-style UX: several chats at once without locking canvas pan. */
 export function isDesktopMultiChat(): boolean {
@@ -47,7 +48,9 @@ export function persistChatSnapshot(card: Pick<ConversationCard, "id" | "title" 
 }
 
 export function readChatSnapshot(id: string): ChatWindowSnapshot | null {
-  const raw = sessionStorage.getItem(`${STORAGE_PREFIX}${id}`);
+  const raw =
+    sessionStorage.getItem(`${STORAGE_PREFIX}${id}`) ??
+    sessionStorage.getItem(`${LEGACY_STORAGE_PREFIX}${id}`);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as ChatWindowSnapshot;
@@ -57,7 +60,7 @@ export function readChatSnapshot(id: string): ChatWindowSnapshot | null {
 }
 
 export function chatWindowName(id: string): string {
-  return `conversation-canvas-${id}`;
+  return `agent-canvas-${id}`;
 }
 
 export function chatWindowFeatures(): string {
