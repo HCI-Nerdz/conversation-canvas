@@ -178,6 +178,10 @@ h1 {
   background: var(--border-strong);
 }
 
+.caption strong {
+  margin-inline-start: 0.75rem;
+}
+
 .desk {
   position: relative;
   display: flex;
