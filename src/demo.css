@@ -153,6 +153,7 @@ h1 {
   display: flex;
   flex-direction: column;
   height: 640px;
+  margin: 8px;
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
@@ -186,7 +187,6 @@ h1 {
   flex: 1;
   flex-direction: column;
   min-height: 0;
-  padding-inline: 8px;
   overscroll-behavior: contain;
   background: var(--surface-inset);
 }
@@ -260,7 +260,6 @@ h1 {
   flex: 1;
   width: 100%;
   min-height: 0;
-  border-inline: 1px solid var(--border);
   overscroll-behavior: contain;
   overflow: hidden;
   background:
