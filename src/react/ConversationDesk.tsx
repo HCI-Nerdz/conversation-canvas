@@ -479,15 +479,21 @@ function CardView({
             onPointerDown={(event) => event.stopPropagation()}
           />
         ) : (
-          <h2
-            title="Double-click to rename"
-            onDoubleClick={(event) => {
-              event.stopPropagation();
-              setEditingTitle(true);
-            }}
-          >
-            {card.title}
-          </h2>
+          <div className="card-title-row">
+            <h2>{card.title}</h2>
+            <button
+              type="button"
+              className="title-edit icon-button"
+              aria-label={`Rename ${card.title}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                setEditingTitle(true);
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+            >
+              <EditIcon />
+            </button>
+          </div>
         )}
       </header>
       <button
@@ -608,6 +614,17 @@ function ArchiveIcon() {
       <path
         fill="currentColor"
         d="M2 3h12v2H2V3zm1 3h10l-.5 7H3.5L3 6zm3 1v4h4V7H6z"
+      />
+    </svg>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M11.5 2.5a1.8 1.8 0 0 1 2.5 2.5L6.7 12.3 3 13l.7-3.7L11.5 2.5zM2 14h12v1.5H2V14z"
       />
     </svg>
   );
