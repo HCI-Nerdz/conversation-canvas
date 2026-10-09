@@ -1,0 +1,35 @@
+ifndef::env-github[:icons: font]
+:toc: preamble
+
+= Conversation canvas
+
+Agent chats as movable picture-and-blurb cards, with inbox statuses, an archive bin, and file-to-chat links.
+
+link:https://hci-nerdz.github.io/conversation-canvas/[Try the demo]
+·
+link:https://hci-nerdz.github.io/docs/hci-nerdz/conversation-canvas.html[Explore the docs]
+
+== What you can do
+
+* Drag conversation cards around a desk. Each card shows a preview and a clipped blurb.
+* Read status by color: working, waiting, unread, read, needs response, completed.
+* Archive a card. Open the bin in spatial, grid, or list view. Restore puts the card back where it was.
+* Drop a file onto the desk and drag a link from that file to the chat that should start from it.
+* Retitle a card. The previous title stays in a topic list, newest first.
+
+The desk mounts only the cards inside the viewport. Opening a card is what loads a transcript. The demo never does.
+
+== Run locally
+
+[source,powershell]
+----
+pnpm install
+pnpm test
+pnpm dev
+----
+
+== Layout
+
+* `src/core` — card, archive, and viewport rules. No DOM.
+* `src/controller` — desk actions.
+* `src/react` — the desk and the demo page.

@@ -1,0 +1,25 @@
+{
+  "name": "@hci-nerdz/conversation-canvas",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Spatial canvas for agent conversations: preview cards, inbox statuses, archive bin, and prompt-source edges.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test src/core/model.test.ts"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}

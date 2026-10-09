@@ -1,0 +1,9 @@
+= Changelog
+
+== 2026-10-09 — Conversation canvas desk
+
+* Spatial cards with preview, clipped blurb, and six inbox statuses.
+* Archive bin remembers position and offers spatial, grid, and list views.
+* File drop and a prompt-source link from a file to a chat.
+* Topic bookmarks when a title changes, newest first.
+* Viewport culling so off-screen cards are not mounted.
