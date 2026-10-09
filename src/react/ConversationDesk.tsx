@@ -94,11 +94,18 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
     setChatPanels((current) => current.filter((panel) => panel.id !== id));
   }
 
+  const modelRef = useRef(model);
+  modelRef.current = model;
+
   useEffect(() => {
     if (fitRequest === 0) return;
-    const next = fitViewportToCards(activeCards(model), stageSize.width, stageSize.height);
+    const next = fitViewportToCards(
+      activeCards(modelRef.current),
+      stageSize.width,
+      stageSize.height,
+    );
     dispatch({ type: "set-viewport", ...next });
-  }, [fitRequest, dispatch, model, stageSize.width, stageSize.height]);
+  }, [fitRequest, dispatch, stageSize.width, stageSize.height]);
 
   function worldPoint(event: { clientX: number; clientY: number }) {
     const rect = stageRef.current?.getBoundingClientRect();
@@ -220,6 +227,13 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
             onClick={() => zoomAt(stageSize.width / 2, stageSize.height / 2, zoom * 1.15)}
           >
             +
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom to 100 percent"
+            onClick={() => zoomAt(stageSize.width / 2, stageSize.height / 2, 1)}
+          >
+            100%
           </button>
           <button
             type="button"

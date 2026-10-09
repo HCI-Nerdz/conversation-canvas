@@ -199,6 +199,11 @@ h1 {
   padding: 0.35rem 0.5rem;
 }
 
+.view-tools button[aria-label="Zoom to 100 percent"] {
+  min-width: 3.1rem;
+  font-size: 0.72rem;
+}
+
 .zoom-readout {
   min-width: 3rem;
   text-align: center;
