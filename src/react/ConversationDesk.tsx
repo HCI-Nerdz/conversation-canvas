@@ -343,13 +343,13 @@ function CardView({
 
   return (
     <article
-      className={`card status-${card.status}`}
+      className="card"
       style={{ left: card.x, top: card.y, zIndex: card.zIndex, width: CARD_WIDTH }}
       onPointerDown={onPointerDown}
     >
       <header className="card-title-bar">
         <span
-          className="status-dot"
+          className={`status-dot status-${card.status}`}
           title={STATUS_LABEL[card.status]}
           aria-label={`Status: ${STATUS_LABEL[card.status]}`}
         />
@@ -489,7 +489,7 @@ function ArchiveBin({
         {cards.map((card, index) => (
           <article
             key={card.id}
-            className={`card status-${card.status}`}
+            className="card"
             style={
               mode === "spatial"
                 ? { left: card.x, top: card.y, zIndex: cards.length - index, position: "absolute" }

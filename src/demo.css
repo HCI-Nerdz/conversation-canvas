@@ -423,12 +423,12 @@ h1 {
   background: currentColor;
 }
 
-.status-working { color: #7dd3fc; }
-.status-waiting { color: #fbbf24; }
-.status-unread { color: #93c5fd; }
-.status-read { color: #a8a29e; }
-.status-needsResponse { color: #c4b5fd; }
-.status-completed { color: #86efac; }
+.status-dot.status-working { color: #7dd3fc; }
+.status-dot.status-waiting { color: #fbbf24; }
+.status-dot.status-unread { color: #93c5fd; }
+.status-dot.status-read { color: #a8a29e; }
+.status-dot.status-needsResponse { color: #c4b5fd; }
+.status-dot.status-completed { color: #86efac; }
 
 .file-node {
   width: 148px;
