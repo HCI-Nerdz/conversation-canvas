@@ -32,6 +32,14 @@ interface ChatPanelPlacement {
 
 const DRAG_THRESHOLD_PX = 5;
 
+function wheelShouldZoomCanvas(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.closest(".desk-bar")) return false;
+  if (target.closest(".chat-thread-expanded, .chat-composer")) return false;
+  if (target.closest(".archive-body")) return false;
+  return true;
+}
+
 interface DeskProps {
   model: CanvasModel;
   dispatch: (action: CanvasAction) => void;
@@ -40,6 +48,7 @@ interface DeskProps {
 
 export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps) {
   const multiChat = isDesktopMultiChat();
+  const deskRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = useState({ width: 960, height: 640 });
   const dragRef = useRef<{
@@ -96,6 +105,41 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
 
   const modelRef = useRef(model);
   modelRef.current = model;
+  const canvasModalOpenRef = useRef(canvasModalOpen);
+  canvasModalOpenRef.current = canvasModalOpen;
+
+  useEffect(() => {
+    const desk = deskRef.current;
+    if (!desk) return;
+
+    function onWheel(event: WheelEvent) {
+      if (canvasModalOpenRef.current) return;
+      if (!wheelShouldZoomCanvas(event.target)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const stage = stageRef.current;
+      if (!stage) return;
+      const rect = stage.getBoundingClientRect();
+      const viewport = modelRef.current.viewport;
+      const zoom = viewport.zoom || 1;
+      const delta = event.deltaY > 0 ? 1 / 1.08 : 1.08;
+      const clamped = Math.min(2.5, Math.max(0.25, zoom * delta));
+      const ratio = clamped / zoom;
+      const px = event.clientX - rect.left;
+      const py = event.clientY - rect.top;
+      dispatch({
+        type: "set-viewport",
+        x: px - (px - viewport.x) * ratio,
+        y: py - (py - viewport.y) * ratio,
+        zoom: clamped,
+      });
+    }
+
+    desk.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    return () => desk.removeEventListener("wheel", onWheel, { capture: true });
+  }, [dispatch]);
 
   useEffect(() => {
     if (fitRequest === 0) return;
@@ -210,7 +254,7 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
   const zoom = model.viewport.zoom || 1;
 
   return (
-    <div className="desk">
+    <div className="desk" ref={deskRef}>
       <div className="desk-bar">
         <div className="view-tools">
           <button
@@ -262,12 +306,6 @@ export function ConversationDesk({ model, dispatch, fitRequest = 0 }: DeskProps)
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
-        onWheel={(event) => {
-          if (canvasModalOpen) return;
-          event.preventDefault();
-          const delta = event.deltaY > 0 ? 1 / 1.08 : 1.08;
-          zoomAt(event.clientX, event.clientY, zoom * delta);
-        }}
         onDragOver={(event) => event.preventDefault()}
         onDrop={onDrop}
       >

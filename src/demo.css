@@ -153,6 +153,7 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+  overscroll-behavior: contain;
   background: var(--surface-inset);
   min-height: 640px;
 }
@@ -176,6 +177,7 @@ h1 {
 .desk {
   position: relative;
   height: 640px;
+  overscroll-behavior: contain;
   background: var(--surface-inset);
 }
 
@@ -245,6 +247,7 @@ h1 {
 
 .stage {
   position: relative;
+  overscroll-behavior: contain;
   height: calc(100% - 42px);
   overflow: hidden;
   background:
